@@ -24,14 +24,14 @@ class LightningModule(L.LightningModule):
             task="multiclass", num_classes=num_classes
         )
         self.val_acc = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
-        self.test_acc = torchmetrics.Accuracy(
-            task="multiclass", num_classes=num_classes
-        )
+
+    def forward(self, x):
+        return self.net(x)
 
     def training_step(self, batch, batch_idx: int):
         x, y = batch
 
-        logits = self.net(x)
+        logits = self(x)
 
         loss = self.criterion(logits, y)
         self.train_acc(logits, y)
@@ -46,26 +46,13 @@ class LightningModule(L.LightningModule):
     def validation_step(self, batch, batch_idx: int):
         x, y = batch
 
-        logits = self.net(x)
+        logits = self(x)
 
         loss = self.criterion(logits, y)
         self.val_acc(logits, y)
 
         self.log_dict(
             {"val/loss": loss, "val/acc": self.val_acc},
-            on_epoch=True,
-        )
-
-    def test_step(self, batch, batch_idx: int):
-        x, y = batch
-
-        logits = self.net(x)
-
-        loss = self.criterion(logits, y)
-        self.test_acc(logits, y)
-
-        self.log_dict(
-            {"test/loss": loss, "test/acc": self.test_acc},
             on_epoch=True,
         )
 
