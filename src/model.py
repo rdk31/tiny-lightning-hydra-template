@@ -56,19 +56,27 @@ class LightningModule(L.LightningModule):
             on_epoch=True,
         )
 
+        preds = torch.argmax(logits, dim=1)
+        captions = []
+        for pred, label in zip(preds, y):
+            captions.append(f"pred: {pred} true: {label}")
+
+        return {
+            "wandb_image_logger": {"val/samples": {"images": x, "captions": captions}}
+        }
+
     def configure_optimizers(self):
         optimizer = self.optimizer(params=self.parameters())
+        out = {"optimizer": optimizer}
         if self.lr_scheduler is not None:
             lr_scheduler = self.lr_scheduler(
                 optimizer=optimizer,
                 T_max=self.trainer.estimated_stepping_batches,
             )
-            return {
-                "optimizer": optimizer,
-                "lr_scheduler": {
-                    "scheduler": lr_scheduler,
-                    "interval": "step",
-                    "frequency": 1,
-                },
+            out["lr_scheduler"] = {
+                "scheduler": lr_scheduler,
+                "interval": "step",
+                "frequency": 1,
             }
-        return {"optimizer": optimizer}
+
+        return out

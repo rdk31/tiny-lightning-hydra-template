@@ -1,3 +1,4 @@
 defaults:
   - learning_rate_monitor
   - model_checkpoint
+  - wandb_image_logger
