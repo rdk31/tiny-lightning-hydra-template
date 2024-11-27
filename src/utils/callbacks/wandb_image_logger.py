@@ -31,6 +31,7 @@ class WandbImageLogger(L.Callback):
 
         ### Log multiple images without captions
         ```python
+            ...
             return {
                 "wandb_image_logger": {
                     "test/clean": {"images": clean},
