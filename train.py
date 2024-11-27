@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 
-import lightning as L
 import hydra
+import lightning as L
+import rootutils
 import wandb
 from omegaconf import DictConfig, OmegaConf
-import rootutils
 
 rootutils.setup_root(__file__, pythonpath=True)
 
