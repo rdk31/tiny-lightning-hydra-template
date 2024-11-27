@@ -1,0 +1,13 @@
+seed: 0
+
+entity: ???
+project_name: ???
+name: ""
+tags: null
+group: null
+
+root_dir: ${oc.env:PROJECT_ROOT}
+data_dir: ${core.root_dir}/data
+log_dir: ${core.root_dir}/logs
+output_dir: ${hydra:runtime.output_dir}
+work_dir: ${hydra:runtime.cwd}

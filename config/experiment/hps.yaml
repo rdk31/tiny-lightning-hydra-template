@@ -1,0 +1,11 @@
+# @package _global_
+
+core:
+  name: lr=${model.optimizer.lr}
+  group: hps
+
+hydra:
+  mode: "MULTIRUN"
+  sweeper:
+    params:
+      model.optimizer.lr: 1e-3,1e-4,1e-5

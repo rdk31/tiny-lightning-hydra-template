@@ -1,0 +1,9 @@
+_target_: lightning.pytorch.trainer.Trainer
+
+accelerator: gpu
+devices: 1
+
+max_epochs: 50
+check_val_every_n_epoch: null
+
+default_root_dir: ${core.output_dir}

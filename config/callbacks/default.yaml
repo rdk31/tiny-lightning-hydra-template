@@ -1,0 +1,3 @@
+defaults:
+  - learning_rate_monitor
+  - model_checkpoint

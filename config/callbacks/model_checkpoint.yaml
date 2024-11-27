@@ -1,0 +1,9 @@
+model_checkpoint:
+  _target_: lightning.pytorch.callbacks.ModelCheckpoint
+
+  dirpath: "${core.output_dir}/checkpoints"
+  filename: "best"
+  save_top_k: 1
+  monitor: "val/loss"
+  mode: "min"
+  auto_insert_metric_name: False

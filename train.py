@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+
+import lightning as L
+import hydra
+import wandb
+from omegaconf import DictConfig, OmegaConf
+import rootutils
+
+rootutils.setup_root(__file__, pythonpath=True)
+
+
+@hydra.main(version_base=None, config_path="config", config_name="default")
+def main(cfg: DictConfig):
+    if wandb.run:
+        wandb.finish()
+
+    L.seed_everything(cfg.core.seed)
+
+    logger = hydra.utils.instantiate(cfg.logger)
+    logger.log_hyperparams(OmegaConf.to_container(cfg, resolve=True))
+
+    datamodule = hydra.utils.instantiate(cfg.data)
+    model = hydra.utils.instantiate(cfg.model)
+    callbacks = [hydra.utils.instantiate(c) for c in cfg.callbacks.values()]
+
+    trainer = hydra.utils.instantiate(cfg.trainer, logger=logger, callbacks=callbacks)
+
+    trainer.fit(model, datamodule)
+    trainer.test(model, datamodule, ckpt_path="best")
+
+
+if __name__ == "__main__":
+    main()
