@@ -27,7 +27,6 @@ def main(cfg: DictConfig):
     trainer = hydra.utils.instantiate(cfg.trainer, logger=logger, callbacks=callbacks)
 
     trainer.fit(model, datamodule)
-    trainer.test(model, datamodule, ckpt_path="best")
 
 
 if __name__ == "__main__":
