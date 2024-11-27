@@ -1,6 +1,6 @@
 _target_: src.model.LightningModule
 
-num_classes: 8
+num_classes: 10
 
 net:
   _target_: src.nets.resnet18.Resnet18

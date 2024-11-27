@@ -7,7 +7,7 @@ class CIFAR10DataModule(L.LightningDataModule):
     def __init__(
         self,
         data_dir: str,
-        train_transform: torchvision.transforms.Compose,
+        train_transform: transforms.Compose,
         batch_size: int = 32,
         num_workers: int = 8,
     ):
