@@ -1,15 +1,15 @@
 import lightning as L
+import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import v2
-import torch
 
 
 class CIFAR10DataModule(L.LightningDataModule):
     def __init__(
         self,
         data_dir: str,
-        _num_classes: int,
+        num_classes: int,
         train_transform: v2.Compose,
         val_transform: v2.Compose | None = None,
         batch_size: int = 512,

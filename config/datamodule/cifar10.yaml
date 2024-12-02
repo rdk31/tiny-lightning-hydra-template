@@ -1,4 +1,4 @@
-_target_: src.datamodules.CIFAR10DataModule
+_target_: src.datamodules.cifar10.CIFAR10DataModule
 
 data_dir: ${core.data_dir}
 num_classes: 10
@@ -8,7 +8,10 @@ train_transform:
   transforms:
     - _target_: torchvision.transforms.v2.ToImage
     - _target_: torchvision.transforms.v2.ToDtype
-      dtype: torch.float32
+      dtype:
+        _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
+        _args_:
+          - float32
       scale: True
     - _target_: torchvision.transforms.v2.Normalize
       mean: [0.485, 0.456, 0.406]

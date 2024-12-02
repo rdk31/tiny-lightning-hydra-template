@@ -7,4 +7,4 @@ sweep:
 
 job:
   env_set:
-    CACHE_DIR: ${core.data_dir}/.cache
+    CACHE_DIR: data/.cache # can't use interpolation, see: https://github.com/facebookresearch/hydra/issues/2800
