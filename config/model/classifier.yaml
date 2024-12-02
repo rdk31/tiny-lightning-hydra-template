@@ -1,10 +1,10 @@
-_target_: src.model.LightningModule
+_target_: src.models.classifier.ClassifierLightningModule
 
-num_classes: 10
+num_classes: ${data.num_classes}
 
 net:
   _target_: src.nets.resnet18.Resnet18
-  num_classes: ${model.num_classes}
+  num_classes: ${data.num_classes}
 
 optimizer:
   _target_: torch.optim.AdamW

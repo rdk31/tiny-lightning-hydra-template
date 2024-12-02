@@ -4,7 +4,7 @@ import torch.nn as nn
 import torchmetrics
 
 
-class LightningModule(L.LightningModule):
+class ClassifierLightningModule(L.LightningModule):
     def __init__(
         self,
         num_classes: int,

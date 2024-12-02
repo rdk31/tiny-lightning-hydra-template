@@ -1,5 +1,10 @@
 run:
   dir: ${core.log_dir}/runs/${now:%Y-%m-%d}_${now:%H-%M-%S}
+
 sweep:
   dir: ${core.log_dir}/multiruns/${now:%Y-%m-%d}_${now:%H-%M-%S}
   subdir: ${hydra.job.num}
+
+job:
+  env_set:
+    CACHE_DIR: ${core.data_dir}/.cache

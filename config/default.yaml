@@ -3,8 +3,8 @@ defaults:
 
   - core: default
 
-  - data: datamodule
-  - model: model
+  - datamodule: cifar10
+  - model: classifier
 
   - trainer: default
   - callbacks: default

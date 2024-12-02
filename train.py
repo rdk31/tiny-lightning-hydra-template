@@ -20,7 +20,7 @@ def main(cfg: DictConfig):
     logger = hydra.utils.instantiate(cfg.logger)
     logger.log_hyperparams(OmegaConf.to_container(cfg, resolve=True))
 
-    datamodule = hydra.utils.instantiate(cfg.data)
+    datamodule = hydra.utils.instantiate(cfg.datamodule)
     model = hydra.utils.instantiate(cfg.model)
     callbacks = [hydra.utils.instantiate(c) for c in cfg.callbacks.values()]
 

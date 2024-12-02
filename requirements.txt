@@ -10,3 +10,5 @@ torchvision==0.20.1
 tqdm==4.66.4
 wandb==0.18.7
 pre-commit==4.0.1
+joblib==1.4.2
+ipykernel==6.29.5
