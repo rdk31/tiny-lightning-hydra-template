@@ -1,4 +1,4 @@
-# lightning-hydra-template
+# tiny-lightning-hydra-template
 
 - setup env
   - using conda
@@ -8,4 +8,3 @@
     - `pip install -r requirements.txt`
 - fill in `config/core/default.yaml`
 - run: `pre-commit install`
-
