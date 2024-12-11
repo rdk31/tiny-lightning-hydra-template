@@ -5,6 +5,7 @@ num_classes: ${datamodule.num_classes}
 net:
   _target_: src.nets.resnet18.Resnet18
   num_classes: ${datamodule.num_classes}
+  pretrained: True
 
 optimizer:
   _target_: torch.optim.AdamW
