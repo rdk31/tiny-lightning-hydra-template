@@ -10,7 +10,7 @@ class ClassifierLightningModule(L.LightningModule):
         num_classes: int,
         net: torch.nn.Module,
         optimizer: torch.optim.Optimizer,
-        lr_scheduler: torch.optim.lr_scheduler.LRScheduler = None,
+        lr_scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
     ):
         super().__init__()
         self.save_hyperparameters(logger=False)

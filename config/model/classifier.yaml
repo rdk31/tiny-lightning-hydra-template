@@ -1,10 +1,12 @@
 _target_: src.models.classifier.ClassifierLightningModule
 
-num_classes: ${datamodule.num_classes}
+num_classes: ${data.num_classes}
 
 net:
-  _target_: src.nets.resnet18.Resnet18
-  num_classes: ${datamodule.num_classes}
+  _target_: src.nets.timm.Timm
+
+  model_name: resnet18
+  num_classes: ${data.num_classes}
   pretrained: True
 
 optimizer:

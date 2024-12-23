@@ -1,4 +1,4 @@
-_target_: src.datamodules.cifar10.CIFAR10DataModule
+_target_: src.data.cifar10.CIFAR10DataModule
 
 data_dir: ${core.data_dir}
 num_classes: 10

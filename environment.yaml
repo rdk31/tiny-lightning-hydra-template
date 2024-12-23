@@ -1,8 +1,0 @@
-name: lightning-hydra-template
-channels:
-  - conda-forge
-dependencies:
-  - pip
-  - python=3.11
-  - pip:
-      - -r requirements.txt
