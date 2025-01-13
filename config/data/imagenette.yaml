@@ -1,7 +1,8 @@
-_target_: src.data.cifar10.CIFAR10DataModule
+_target_: src.data.imagenette.ImagenetteDataModule
 
 data_dir: ${core.data_dir}
 num_classes: 10
+map_targets_to_image_net: False # for pretrained classifiers
 
 train_transform:
   _target_: torchvision.transforms.v2.Compose
@@ -16,6 +17,9 @@ train_transform:
     - _target_: torchvision.transforms.v2.Normalize
       mean: [0.485, 0.456, 0.406]
       std: [0.229, 0.224, 0.225]
+    - _target_: torchvision.transforms.v2.RandomCrop
+      size: 224
+      pad_if_needed: True
 
 val_transform:
   _target_: torchvision.transforms.v2.Compose
@@ -30,6 +34,8 @@ val_transform:
     - _target_: torchvision.transforms.v2.Normalize
       mean: [0.485, 0.456, 0.406]
       std: [0.229, 0.224, 0.225]
+    - _target_: torchvision.transforms.v2.CenterCrop
+      size: 224
 
 batch_size: 32
 num_workers: 8

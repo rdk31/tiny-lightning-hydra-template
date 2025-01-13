@@ -1,8 +1,8 @@
+from typing import Callable
+
 import lightning as L
-import torch
 from torch.utils.data import DataLoader
 from torchvision import datasets
-from torchvision.transforms import v2
 
 
 class CIFAR10DataModule(L.LightningDataModule):
@@ -10,23 +10,14 @@ class CIFAR10DataModule(L.LightningDataModule):
         self,
         data_dir: str,
         num_classes: int,
-        train_transform: v2.Compose,
-        val_transform: v2.Compose | None = None,
-        batch_size: int = 512,
+        train_transform: Callable,
+        val_transform: Callable,
+        batch_size: int = 32,
         num_workers: int = 8,
     ):
         super().__init__()
         self.train_transform = train_transform
-        if val_transform:
-            self.val_transform = val_transform
-        else:
-            self.val_transform = v2.Compose(
-                [
-                    v2.ToImage(),
-                    v2.ToDtype(torch.float32, scale=True),
-                    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-                ]
-            )
+        self.val_transform = val_transform
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_workers = num_workers

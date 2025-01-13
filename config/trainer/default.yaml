@@ -4,5 +4,8 @@ accelerator: gpu
 devices: 1
 
 max_epochs: 10
+# check_val_every_n_epoch: null
+# val_check_interval: 1_000
+# max_steps: 40_000
 
 default_root_dir: ${core.output_dir}
