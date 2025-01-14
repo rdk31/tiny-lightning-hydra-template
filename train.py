@@ -4,6 +4,7 @@
 import hydra
 import lightning as L
 import rootutils
+import wandb
 from omegaconf import DictConfig, OmegaConf
 
 rootutils.setup_root(__file__, pythonpath=True)
@@ -11,6 +12,9 @@ rootutils.setup_root(__file__, pythonpath=True)
 
 @hydra.main(version_base=None, config_path="config", config_name="default")
 def main(cfg: DictConfig):
+    if wandb.run:
+        wandb.finish()
+
     L.seed_everything(cfg.core.seed)
 
     logger = hydra.utils.instantiate(cfg.logger)
