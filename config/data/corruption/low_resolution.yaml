@@ -1,0 +1,3 @@
+_target_: src.data.corruptions.LowResolution
+
+factor: 4

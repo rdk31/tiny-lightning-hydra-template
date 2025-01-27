@@ -1,0 +1,4 @@
+_target_: torchvision.transforms.v2.GaussianNoise
+
+mean: 0
+sigma: 0.3

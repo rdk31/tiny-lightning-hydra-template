@@ -1,0 +1,3 @@
+_target_: torchvision.transforms.v2.Grayscale
+
+num_output_channels: 3

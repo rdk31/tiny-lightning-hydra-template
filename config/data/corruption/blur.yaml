@@ -1,0 +1,4 @@
+_target_: torchvision.transforms.v2.GaussianBlur
+
+kernel_size: 15
+sigma: 10
