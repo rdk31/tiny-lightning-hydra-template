@@ -2,6 +2,7 @@ _target_: src.data.datamodule.DataModule
 
 train_dataset:
   _target_: src.data.imagenet.ImageNet
+  _partial_: True
 
   root: ${core.data_dir}/imagenet
   split: train
@@ -19,9 +20,13 @@ train_dataset:
       - _target_: torchvision.transforms.v2.Normalize
         mean: [0.485, 0.456, 0.406]
         std: [0.229, 0.224, 0.225]
+      - _target_: torchvision.transforms.v2.RandomCrop
+        size: 224
+        pad_if_needed: True
 
 val_dataset:
   _target_: src.data.imagenet.ImageNet
+  _partial_: True
 
   root: ${core.data_dir}/imagenet
   split: val
@@ -39,6 +44,8 @@ val_dataset:
       - _target_: torchvision.transforms.v2.Normalize
         mean: [0.485, 0.456, 0.406]
         std: [0.229, 0.224, 0.225]
+      - _target_: torchvision.transforms.v2.CenterCrop
+        size: 224
 
 batch_size: 32
 num_workers: 8
