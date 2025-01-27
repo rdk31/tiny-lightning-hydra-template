@@ -1,3 +1,4 @@
 wandb_image_logger:
   _target_: src.utils.callbacks.wandb_image_logger.WandbImageLogger
+
   num_samples: 8
