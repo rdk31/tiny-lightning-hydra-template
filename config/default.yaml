@@ -8,7 +8,12 @@ defaults:
 
   - trainer: default
   - callbacks: default
-  - logger: wandb
+  - wandb: default
   - hydra: default
 
   - experiment: null
+
+train: True
+test: False
+
+ckpt_path: null

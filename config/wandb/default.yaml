@@ -1,6 +1,6 @@
 _target_: pytorch_lightning.loggers.WandbLogger
 
-project: ${core.project_name} 
+project: ${core.project_name}
 entity: ${core.entity}
 save_dir: ${core.output_dir}
 

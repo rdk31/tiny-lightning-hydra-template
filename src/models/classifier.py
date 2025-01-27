@@ -62,7 +62,13 @@ class ClassifierLightningModule(L.LightningModule):
             captions.append(f"pred: {pred} true: {label}")
 
         return {
-            "wandb_image_logger": {"val/samples": {"images": x, "captions": captions}}
+            "wandb_image_logger": {
+                "val/samples": {
+                    "images": x,
+                    "captions": captions,
+                    "denormalize_from": "imagenet",
+                }
+            }
         }
 
     def configure_optimizers(self):
