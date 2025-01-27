@@ -1,13 +1,13 @@
 _target_: src.models.classifier.ClassifierLightningModule
 
-num_classes: ${data.num_classes}
+num_classes: 1000
 
-net:
+clf:
   _target_: src.nets.timm.Timm
 
   model_name: resnet18
-  num_classes: ${data.num_classes}
   pretrained: True
+  num_classes: 1000
 
 optimizer:
   _target_: torch.optim.AdamW

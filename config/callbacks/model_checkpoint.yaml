@@ -4,6 +4,6 @@ model_checkpoint:
   dirpath: "${core.output_dir}/checkpoints"
   filename: "best"
   save_top_k: 1
-  monitor: ???
-  mode: ???
+  monitor: "val/acc"
+  mode: "max"
   auto_insert_metric_name: False

@@ -8,3 +8,4 @@ logs
 env/
 venv/
 
+config/local/default.yaml

@@ -3,7 +3,7 @@ defaults:
 
   - core: default
 
-  - data: cifar10
+  - data: imagenet
   - model: classifier
 
   - trainer: default
@@ -13,7 +13,11 @@ defaults:
 
   - experiment: null
 
+  - optional local: default
+
+  - debug: null
+
 train: True
-test: False
+test: True
 
 ckpt_path: null

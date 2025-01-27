@@ -12,3 +12,4 @@ wandb==0.19.4
 pre-commit==4.1.0
 ipykernel==6.29.5
 timm==1.0.14
+scipy==1.15.1

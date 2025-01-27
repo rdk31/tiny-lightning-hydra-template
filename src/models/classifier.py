@@ -8,14 +8,14 @@ class ClassifierLightningModule(L.LightningModule):
     def __init__(
         self,
         num_classes: int,
-        net: torch.nn.Module,
+        clf: torch.nn.Module,
         optimizer: torch.optim.Optimizer,
         lr_scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
     ):
         super().__init__()
         self.save_hyperparameters(logger=False)
 
-        self.net = net
+        self.clf = clf
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
 
@@ -24,14 +24,14 @@ class ClassifierLightningModule(L.LightningModule):
             task="multiclass", num_classes=num_classes
         )
         self.val_acc = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
-
-    def forward(self, x):
-        return self.net(x)
+        self.test_acc = torchmetrics.Accuracy(
+            task="multiclass", num_classes=num_classes
+        )
 
     def training_step(self, batch, batch_idx: int):
-        x, y = batch
+        x, y = batch["image"], batch["target"]
 
-        logits = self(x)
+        logits = self.clf(x)
 
         loss = self.criterion(logits, y)
         self.train_acc(logits, y)
@@ -44,9 +44,9 @@ class ClassifierLightningModule(L.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx: int):
-        x, y = batch
+        x, y = batch["image"], batch["target"]
 
-        logits = self(x)
+        logits = self.clf(x)
 
         loss = self.criterion(logits, y)
         self.val_acc(logits, y)
@@ -64,6 +64,34 @@ class ClassifierLightningModule(L.LightningModule):
         return {
             "wandb_image_logger": {
                 "val/samples": {
+                    "images": x,
+                    "captions": captions,
+                    "denormalize_from": "imagenet",
+                }
+            }
+        }
+
+    def test_step(self, batch, batch_idx: int):
+        x, y = batch["image"], batch["target"]
+
+        logits = self.clf(x)
+
+        loss = self.criterion(logits, y)
+        self.test_acc(logits, y)
+
+        self.log_dict(
+            {"test/loss": loss, "test/acc": self.test_acc},
+            on_epoch=True,
+        )
+
+        preds = torch.argmax(logits, dim=1)
+        captions = []
+        for pred, label in zip(preds, y):
+            captions.append(f"pred: {pred} true: {label}")
+
+        return {
+            "wandb_image_logger": {
+                "test/samples": {
                     "images": x,
                     "captions": captions,
                     "denormalize_from": "imagenet",
