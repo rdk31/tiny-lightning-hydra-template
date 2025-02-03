@@ -4,7 +4,7 @@ matplotlib==3.10.0
 numpy==1.26.4
 pandas==2.2.3
 rootutils==1.0.7
-torch==2.5.1
+torch==2.6.0
 torchmetrics==1.6.1
 torchvision==0.20.1
 tqdm==4.67.1
