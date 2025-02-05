@@ -1,6 +1,6 @@
 __pycache__
 /data
-logs
+/logs
 
 # Environments
 .env
