@@ -36,10 +36,7 @@ class ClassifierLightningModule(L.LightningModule):
         loss = self.criterion(logits, y)
         self.train_acc(logits, y)
 
-        self.log_dict(
-            {"train/loss": loss, "train/acc": self.train_acc},
-            on_step=True,
-        )
+        self.log_dict({"train/loss": loss, "train/acc": self.train_acc}, sync_dist=True)
 
         return loss
 
@@ -51,10 +48,7 @@ class ClassifierLightningModule(L.LightningModule):
         loss = self.criterion(logits, y)
         self.val_acc(logits, y)
 
-        self.log_dict(
-            {"val/loss": loss, "val/acc": self.val_acc},
-            on_epoch=True,
-        )
+        self.log_dict({"val/loss": loss, "val/acc": self.val_acc}, sync_dist=True)
 
         preds = torch.argmax(logits, dim=1)
         captions = []
@@ -79,10 +73,7 @@ class ClassifierLightningModule(L.LightningModule):
         loss = self.criterion(logits, y)
         self.test_acc(logits, y)
 
-        self.log_dict(
-            {"test/loss": loss, "test/acc": self.test_acc},
-            on_epoch=True,
-        )
+        self.log_dict({"test/loss": loss, "test/acc": self.test_acc}, sync_dist=True)
 
         preds = torch.argmax(logits, dim=1)
         captions = []
