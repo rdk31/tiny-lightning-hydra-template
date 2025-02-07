@@ -1,7 +1,5 @@
 import lightning as L
 import torch
-from torchmetrics.image import PeakSignalNoiseRatio as PSNR
-from torchmetrics.image import StructuralSimilarityIndexMeasure as SSIM
 
 from src.nets.diffusion import DiffusionEngine
 
@@ -22,34 +20,27 @@ class DiffusionLightningModule(L.LightningModule):
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
 
-        self.val_psnr = PSNR()
-        self.val_ssim = SSIM()
-
-        self.test_ssim = SSIM()
-        self.test_psnr = PSNR()
-
     def training_step(self, batch, batch_idx: int):
-        x_T, x_0 = batch["corrupted"], batch["image"]
+        x_0, y = batch["image"], batch["target"]
 
-        output = self.diffusion.training_losses(self.unet, x_0, x_T)
+        output = self.diffusion.training_losses(
+            self.unet, x_0, model_kwargs={"class_labels": y}
+        )
+        loss = output["loss"].mean()
 
-        self.log_dict({"train/loss": output["loss"]}, sync_dist=True)
+        self.log_dict({"train/loss": loss}, sync_dist=True)
 
-        return output["loss"]
+        return loss
 
     @torch.no_grad()
     def validation_step(self, batch, batch_idx: int):
-        x_T, x_0 = batch["corrupted"], batch["image"]
+        x_0, y = batch["image"], batch["target"]
 
-        pred_x_0 = self.diffusion.p_sample_loop(self.unet, shape=x_0.shape)
-        pred_x_0 = pred_x_0.clamp(-1, 1)
+        pred_x_0 = self.diffusion.p_sample_loop(
+            self.unet, shape=x_0.shape, model_kwargs={"class_labels": y}
+        )
 
-        psnr = self.val_psnr(pred_x_0, x_0)
-        ssim = self.val_ssim(pred_x_0, x_0)
-
-        self.log_dict({"val/psnr": psnr, "val/ssim": ssim}, sync_dist=True)
-
-        x_log = torch.cat([x_T, pred_x_0, x_0], dim=2)
+        x_log = torch.cat([pred_x_0, x_0], dim=2)
 
         return {
             "wandb_image_logger": {
@@ -62,17 +53,13 @@ class DiffusionLightningModule(L.LightningModule):
 
     @torch.no_grad()
     def test_step(self, batch, batch_idx: int):
-        x_T, x_0 = batch["corrupted"], batch["image"]
+        x_0, y = batch["image"], batch["target"]
 
-        pred_x_0 = self.diffusion.p_sample_loop(self.unet, shape=x_0.shape)
-        pred_x_0 = pred_x_0.clamp(-1, 1)
+        pred_x_0 = self.diffusion.p_sample_loop(
+            self.unet, shape=x_0.shape, model_kwargs={"class_labels": y}
+        )
 
-        psnr = self.test_psnr(pred_x_0, x_0)
-        ssim = self.test_ssim(pred_x_0, x_0)
-
-        self.log_dict({"test/psnr": psnr, "test/ssim": ssim}, sync_dist=True)
-
-        x_log = torch.cat([x_T, pred_x_0, x_0], dim=2)
+        x_log = torch.cat([pred_x_0, x_0], dim=2)
 
         return {
             "wandb_image_logger": {

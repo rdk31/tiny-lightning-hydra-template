@@ -18,6 +18,7 @@ unet:
   attention_head_dim: 64
   timestep_condition: true
   global_skip_connection: false
+  num_class_embeds: 10
 
 diffusion:
   _target_: src.nets.diffusion.DiffusionEngine

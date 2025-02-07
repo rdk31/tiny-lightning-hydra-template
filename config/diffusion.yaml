@@ -21,3 +21,7 @@ train: True
 test: True
 
 ckpt_path: null
+
+trainer:
+  limit_val_batches: 1
+  limit_test_batches: 1
