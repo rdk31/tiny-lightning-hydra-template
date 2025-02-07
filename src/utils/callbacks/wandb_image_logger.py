@@ -98,7 +98,7 @@ class WandbImageLogger(L.Callback):
                             std = denormalize_from["std"]
                         else:
                             raise ValueError(
-                                f"denormalize_from must be one of '[-1,1]', 'imagenet' or a dict with mean and std, got {denormalize_from}"
+                                f"denormalize_from must be one of 'standard', 'imagenet' or a dict with mean and std, got {denormalize_from}"
                             )
 
                         images = images * std.view(1, 3, 1, 1) + mean.view(1, 3, 1, 1)

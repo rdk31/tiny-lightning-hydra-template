@@ -1,0 +1,23 @@
+defaults:
+  - _self_
+
+  - core: default
+
+  - data: cifar10-diffusion
+  - model: diffusion
+
+  - trainer: default
+  - callbacks: default
+  - wandb: default
+  - hydra: default
+
+  - experiment: null
+
+  - optional local: default
+
+  - debug: null
+
+train: True
+test: True
+
+ckpt_path: null
