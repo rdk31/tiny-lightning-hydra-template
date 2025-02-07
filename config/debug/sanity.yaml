@@ -1,4 +1,11 @@
 # @package _global_
 
+core:
+  tags: ["sanity"]
+
 trainer:
-  fast_dev_run: True
+  limit_train_batches: 10
+  log_every_n_steps: 5
+  limit_val_batches: 1
+  limit_test_batches: 1
+  max_epochs: 1
