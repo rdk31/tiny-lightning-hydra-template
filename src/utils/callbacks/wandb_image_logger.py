@@ -76,9 +76,11 @@ class WandbImageLogger(L.Callback):
 
                 if len(self.outputs[k]["images"]) < num_samples // trainer.world_size:
                     images = v["images"].detach().cpu()
-                    captions = (
-                        v["captions"] if "captions" in v else [None] * images.shape[0]
-                    )
+
+                    if "captions" in v and v["captions"] is not None:
+                        captions = v["captions"]
+                    else:
+                        captions = [None] * images.shape[0]
 
                     if "denormalize_from" in v:
                         denormalize_from = v["denormalize_from"]

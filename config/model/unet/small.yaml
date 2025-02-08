@@ -1,0 +1,16 @@
+_target_: src.nets.unet.UnetDDPM
+
+in_channels: 3
+out_channels: 3
+low_condition: false
+channels:
+  - 32
+  - 64
+  - 128
+layers_per_block: 2
+downblock: "ResnetDownsampleBlock2D"
+upblock: "ResnetUpsampleBlock2D"
+add_attention: true
+attention_head_dim: 64
+timestep_condition: true
+global_skip_connection: false

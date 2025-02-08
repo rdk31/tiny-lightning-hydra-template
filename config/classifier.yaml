@@ -21,3 +21,7 @@ train: True
 test: True
 
 ckpt_path: null
+
+callbacks:
+  model_checkpoint:
+    monitor: "val/acc"

@@ -2,7 +2,7 @@ seed: 42
 
 entity: ???
 project_name: ???
-name: ""
+name: default
 tags: null
 group: null
 

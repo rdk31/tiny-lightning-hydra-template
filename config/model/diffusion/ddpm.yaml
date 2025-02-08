@@ -1,0 +1,23 @@
+_target_: src.nets.diffusion.DiffusionEngine
+
+train_diffusion:
+  _target_: src.nets.diffusion.gaussian_diffusion.GaussianDiffusion
+
+  n_timesteps: 1000
+  scheduler: "linear"
+  posterior: "ddpm"
+  model_mean_type: "epsilon"
+  model_var_type: "fixed_small"
+  loss_type: "mse"
+  clip_denoised: True
+
+val_diffusion:
+  _target_: src.nets.diffusion.gaussian_diffusion.GaussianDiffusion
+
+  n_timesteps: 1000
+  scheduler: "linear"
+  posterior: "ddpm"
+  model_mean_type: "epsilon"
+  model_var_type: "fixed_small"
+  loss_type: "mse"
+  clip_denoised: True

@@ -1,0 +1,14 @@
+# @package _global_
+
+core:
+  name: class-conditioning
+  group: diffusion
+
+model:
+  class_conditioning: True
+
+  unet:
+    num_class_embeds: ${data.num_classes}
+
+trainer:
+  max_epochs: 200

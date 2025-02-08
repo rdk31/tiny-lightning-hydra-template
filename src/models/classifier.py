@@ -53,7 +53,10 @@ class ClassifierLightningModule(L.LightningModule):
         preds = torch.argmax(logits, dim=1)
         captions = []
         for pred, label in zip(preds, y):
-            captions.append(f"pred: {pred} true: {label}")
+            idx_to_class = self.trainer.datamodule.val_dataset.idx_to_class  # type: ignore
+            captions.append(
+                f"predicted: {idx_to_class[pred.item()]} true: {idx_to_class[label.item()]}"
+            )
 
         return {
             "wandb_image_logger": {
@@ -78,7 +81,10 @@ class ClassifierLightningModule(L.LightningModule):
         preds = torch.argmax(logits, dim=1)
         captions = []
         for pred, label in zip(preds, y):
-            captions.append(f"pred: {pred} true: {label}")
+            idx_to_class = self.trainer.datamodule.val_dataset.idx_to_class  # type: ignore
+            captions.append(
+                f"predicted: {idx_to_class[pred.item()]} true: {idx_to_class[label.item()]}"
+            )
 
         return {
             "wandb_image_logger": {

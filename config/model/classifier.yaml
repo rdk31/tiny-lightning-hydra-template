@@ -1,13 +1,13 @@
 _target_: src.models.classifier.ClassifierLightningModule
 
-num_classes: 1000
+num_classes: ${data.num_classes}
 
 clf:
   _target_: src.nets.timm.Timm
 
   model_name: resnet18
   pretrained: True
-  num_classes: 1000
+  num_classes: ${data.num_classes}
 
 optimizer:
   _target_: torch.optim.AdamW
@@ -17,6 +17,6 @@ optimizer:
 
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.CosineAnnealingLR
-  _partial_: true
+  _partial_: True
 
   eta_min: 1e-6

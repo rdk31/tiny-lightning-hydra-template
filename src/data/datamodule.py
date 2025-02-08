@@ -5,6 +5,7 @@ from torch.utils.data import DataLoader, Dataset
 class DataModule(L.LightningDataModule):
     def __init__(
         self,
+        num_classes: int,
         train_dataset: Dataset,
         val_dataset: Dataset,
         test_dataset: Dataset | None = None,

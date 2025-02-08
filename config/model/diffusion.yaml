@@ -1,49 +1,10 @@
 _target_: src.models.diffusion.DiffusionLightningModule
 
-unet:
-  _target_: src.nets.unet.UnetDDPM
+defaults:
+  - unet: big
+  - diffusion: ddpm
 
-  in_channels: 3
-  out_channels: 3
-  low_condition: false
-  channels:
-    - 64
-    - 128
-    - 128
-    - 256
-  layers_per_block: 2
-  downblock: "ResnetDownsampleBlock2D"
-  upblock: "ResnetUpsampleBlock2D"
-  add_attention: true
-  attention_head_dim: 64
-  timestep_condition: true
-  global_skip_connection: false
-  num_class_embeds: 10
-
-diffusion:
-  _target_: src.nets.diffusion.DiffusionEngine
-
-  train_diffusion:
-    _target_: src.nets.diffusion.gaussian_diffusion.GaussianDiffusion
-
-    n_timesteps: 1000
-    scheduler: "linear"
-    posterior: "ddpm"
-    model_mean_type: "epsilon"
-    model_var_type: "fixed_small"
-    loss_type: "mse"
-    clip_denoised: True
-
-  val_diffusion:
-    _target_: src.nets.diffusion.gaussian_diffusion.GaussianDiffusion
-
-    n_timesteps: 1000
-    scheduler: "linear"
-    posterior: "ddpm"
-    model_mean_type: "epsilon"
-    model_var_type: "fixed_small"
-    loss_type: "mse"
-    clip_denoised: True
+class_conditioning: False
 
 optimizer:
   _target_: torch.optim.AdamW
@@ -53,6 +14,6 @@ optimizer:
 
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.CosineAnnealingLR
-  _partial_: true
+  _partial_: True
 
   eta_min: 1e-6

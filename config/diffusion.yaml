@@ -25,3 +25,7 @@ ckpt_path: null
 trainer:
   limit_val_batches: 1
   limit_test_batches: 1
+
+callbacks:
+  model_checkpoint:
+    monitor: null

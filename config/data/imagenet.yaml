@@ -1,5 +1,7 @@
 _target_: src.data.datamodule.DataModule
 
+num_classes: 1000
+
 train_dataset:
   _target_: src.data.imagenet.ImageNet
   _partial_: True
