@@ -161,16 +161,36 @@ class GaussianDiffusion:
         loss_type: Literal["mse", "rescaled_mse", "kl", "rescaled_kl"] = "mse",
         clip_denoised: bool = True,
     ):
-        betas = get_named_beta_schedule(scheduler, n_timesteps)
-
         self.model_mean_type = model_mean_type
         self.model_var_type = model_var_type
         self.loss_type = loss_type
         self.clip_denoised = clip_denoised
         self.posterior = posterior
+        self.n_timesteps = n_timesteps
 
-        # Use float64 for accuracy.
+        betas = get_named_beta_schedule(scheduler, 1000)
         betas = np.array(betas, dtype=np.float64)
+
+        self.setup_scheduler(betas)
+
+        if self.n_timesteps != 1000:
+            self.timestep_map = []
+            use_timesteps = np.linspace(
+                0, len(self.betas) - 1, self.n_timesteps, dtype=int
+            )
+
+            last_alpha_cumprod = 1.0
+            new_betas = []
+            for i, alpha_cumprod in enumerate(self.alphas_cumprod):
+                if i in use_timesteps:
+                    new_betas.append(1 - alpha_cumprod / last_alpha_cumprod)
+                    last_alpha_cumprod = alpha_cumprod
+                    self.timestep_map.append(i)
+            betas = np.array(new_betas)
+
+            self.setup_scheduler(betas)
+
+    def setup_scheduler(self, betas):
         self.betas = betas
         assert len(betas.shape) == 1, "betas must be 1-D"
         assert (betas > 0).all() and (betas <= 1).all()
@@ -387,6 +407,9 @@ class GaussianDiffusion:
         ) / _extract_into_tensor(self.sqrt_recipm1_alphas_cumprod, t, x_t.shape)
 
     def _scale_timesteps(self, t):
+        if hasattr(self, "timestep_map"):
+            map_tensor = torch.tensor(self.timestep_map, device=t.device, dtype=t.dtype)
+            return map_tensor[t]
         return t.float() * (1000.0 / self.num_timesteps)
 
     def condition_mean(self, cond_fn, p_mean_var, x, t, model_kwargs=None):

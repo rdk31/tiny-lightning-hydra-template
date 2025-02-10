@@ -1,0 +1,40 @@
+defaults:
+  - _self_
+
+  - core: default
+
+  - data: imagenet-corrupted
+  - model: diffusion_image_enhancement
+
+  - trainer: default
+  - callbacks: default
+  - wandb: default
+  - hydra: default
+
+  - experiment: null
+
+  - optional local: default
+
+  - debug: null
+
+train: True
+test: True
+
+ckpt_path: null
+
+trainer:
+  limit_val_batches: 10
+  limit_test_batches: 10
+
+  # better fits to diffusion training
+  check_val_every_n_epoch: null
+  val_check_interval: 2_000
+  max_steps: 100_000
+
+callbacks:
+  model_checkpoint:
+    monitor: "val/lpips"
+
+model:
+  unet:
+    low_condition: True

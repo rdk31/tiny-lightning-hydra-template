@@ -1,0 +1,15 @@
+_target_: src.nets.diffusion.DiffusionEngine
+
+train_diffusion:
+  _target_: src.nets.diffusion.isb.ISBDiffusion
+
+  n_timestep: 1000
+  temperature: 1.0
+  clip_denoised: True
+
+val_diffusion:
+  _target_: src.nets.diffusion.isb.ISBDiffusion
+
+  n_timestep: 30
+  temperature: 1.0
+  clip_denoised: True

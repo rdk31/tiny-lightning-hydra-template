@@ -13,7 +13,7 @@ train_diffusion:
 val_diffusion:
   _target_: src.nets.diffusion.gaussian_diffusion.GaussianDiffusion
 
-  n_timesteps: 1000
+  n_timesteps: 10
   scheduler: "linear"
   posterior: "ddim"
   model_mean_type: "epsilon"

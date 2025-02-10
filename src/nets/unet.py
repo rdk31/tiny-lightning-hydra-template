@@ -26,6 +26,8 @@ class UnetDDPM(nn.Module):
         self.global_skip_connection = global_skip_connection
         self.divide_factor = 2 ** len(channels)
 
+        in_channels = 2 * in_channels if self.low_condition else in_channels
+
         self.backbone = UNet2DModel(
             in_channels=in_channels,
             out_channels=out_channels,
