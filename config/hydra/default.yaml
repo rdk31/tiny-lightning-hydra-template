@@ -1,10 +1,6 @@
 run:
-  dir: ${core.log_dir}/runs/${now:%Y-%m-%d}_${now:%H-%M-%S}
+  dir: ${core.log_dir}/runs/${core.name}/${now:%Y-%m-%d}_${now:%H-%M-%S}
 
 sweep:
-  dir: ${core.log_dir}/multiruns/${now:%Y-%m-%d}_${now:%H-%M-%S}
-  subdir: ${hydra.job.num}
-
-job:
-  env_set:
-    CACHE_DIR: ${oc.env:PROJECT_ROOT}/data/.cache # can't use var interpolation, see: https://github.com/facebookresearch/hydra/issues/2800
+  dir: ${core.log_dir}/multiruns/${multirun_name}/${now:%Y-%m-%d}_${now:%H-%M-%S}
+  subdir: ${hydra.job.num}-${core.name}

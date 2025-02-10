@@ -1,8 +1,11 @@
 # @package _global_
 
+multirun_name: hps
+
 core:
   name: lr=${model.optimizer.lr}
-  group: hps
+  group: ${multirun_name}
+  tags: ["${multirun_name}"]
 
 hydra:
   mode: "MULTIRUN"
