@@ -1,14 +1,14 @@
 _target_: src.data.datamodule.DataModule
 
+defaults:
+  - corruption@train_dataset.corruption: low_resolution
+  - corruption@val_dataset.corruption: low_resolution
+
 num_classes: 1000
 
 train_dataset:
   _target_: src.data.corruptions.CorruptedDataset
   _partial_: True
-
-  corruption:
-    _target_: src.data.corruptions.LowResolution
-    factor: 4
 
   dataset:
     _target_: src.data.imagenet.ImageNet
@@ -33,10 +33,6 @@ train_dataset:
 val_dataset:
   _target_: src.data.corruptions.CorruptedDataset
   _partial_: True
-
-  corruption:
-    _target_: src.data.corruptions.LowResolution
-    factor: 4
 
   dataset:
     _target_: src.data.imagenet.ImageNet
