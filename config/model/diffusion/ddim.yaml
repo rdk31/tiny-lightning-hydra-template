@@ -15,7 +15,7 @@ val_diffusion:
 
   n_timesteps: 1000
   scheduler: "linear"
-  posterior: "ddpm"
+  posterior: "ddim"
   model_mean_type: "epsilon"
   model_var_type: "fixed_small"
   clip_denoised: True

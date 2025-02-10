@@ -1,0 +1,17 @@
+# @package _global_
+
+defaults:
+  - override /model/diffusion: ddim
+
+core:
+  name: class-conditioning-ddim
+  group: diffusion
+
+model:
+  class_conditioning: True
+
+  unet:
+    num_class_embeds: ${data.num_classes}
+
+trainer:
+  max_epochs: 200

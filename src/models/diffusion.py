@@ -50,14 +50,13 @@ class DiffusionLightningModule(L.LightningModule):
             self.unet, shape=x_0.shape, model_kwargs=model_kwargs
         )
 
+        x_log = torch.cat([pred_x_0, x_0], dim=2)
         if self.class_conditioning:
-            x_log = torch.cat([pred_x_0, x_0], dim=2)
             captions = [
                 self.trainer.datamodule.val_dataset.idx_to_class[y]  # type: ignore
                 for y in batch["target"].detach().cpu().numpy().tolist()
             ]
         else:
-            x_log = pred_x_0
             captions = None
 
         return {
@@ -81,14 +80,13 @@ class DiffusionLightningModule(L.LightningModule):
             self.unet, shape=x_0.shape, model_kwargs=model_kwargs
         )
 
+        x_log = torch.cat([pred_x_0, x_0], dim=2)
         if self.class_conditioning:
-            x_log = torch.cat([pred_x_0, x_0], dim=2)
             captions = [
-                self.trainer.datamodule.val_dataset.idx_to_class[y]  # type: ignore
+                self.trainer.datamodule.test_dataset.idx_to_class[y]  # type: ignore
                 for y in batch["target"].detach().cpu().numpy().tolist()
             ]
         else:
-            x_log = pred_x_0
             captions = None
 
         return {
