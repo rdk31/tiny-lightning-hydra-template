@@ -47,7 +47,7 @@ class DiffusionLightningModule(L.LightningModule):
             model_kwargs["class_labels"] = batch["target"]
 
         pred_x_0 = self.diffusion.p_sample_loop(
-            self.unet, shape=x_0.shape, model_kwargs=model_kwargs
+            self.unet, noise=torch.randn_like(x_0), model_kwargs=model_kwargs
         )
 
         x_log = torch.cat([pred_x_0, x_0], dim=2)
@@ -77,7 +77,7 @@ class DiffusionLightningModule(L.LightningModule):
             model_kwargs["class_labels"] = batch["target"]
 
         pred_x_0 = self.diffusion.p_sample_loop(
-            self.unet, shape=x_0.shape, model_kwargs=model_kwargs
+            self.unet, noise=torch.randn_like(x_0), model_kwargs=model_kwargs
         )
 
         x_log = torch.cat([pred_x_0, x_0], dim=2)

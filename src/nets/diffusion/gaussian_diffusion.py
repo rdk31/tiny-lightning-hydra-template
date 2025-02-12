@@ -410,7 +410,7 @@ class GaussianDiffusion:
         if hasattr(self, "timestep_map"):
             map_tensor = torch.tensor(self.timestep_map, device=t.device, dtype=t.dtype)
             return map_tensor[t]
-        return t.float() * (1000.0 / self.num_timesteps)
+        return t
 
     def condition_mean(self, cond_fn, p_mean_var, x, t, model_kwargs=None):
         """
@@ -502,8 +502,7 @@ class GaussianDiffusion:
     def ddpm_sample_loop(
         self,
         model,
-        shape,
-        noise=None,
+        noise,
         denoised_fn=None,
         cond_fn=None,
         model_kwargs=None,
@@ -514,7 +513,6 @@ class GaussianDiffusion:
         Generate samples from the model.
 
         :param model: the model module.
-        :param shape: the shape of the samples, (N, C, H, W).
         :param noise: if specified, the noise from the encoder to sample.
                       Should be of the same shape as `shape`.
         :param clip_denoised: if True, clip x0 predictions to [-1, 1].
@@ -532,7 +530,6 @@ class GaussianDiffusion:
         final = None
         for sample in self.ddpm_sample_loop_progressive(
             model,
-            shape,
             noise=noise,
             denoised_fn=denoised_fn,
             cond_fn=cond_fn,
@@ -546,8 +543,7 @@ class GaussianDiffusion:
     def ddpm_sample_loop_progressive(
         self,
         model,
-        shape,
-        noise=None,
+        noise,
         denoised_fn=None,
         cond_fn=None,
         model_kwargs=None,
@@ -564,11 +560,9 @@ class GaussianDiffusion:
         """
         if device is None:
             device = next(model.parameters()).device
-        assert isinstance(shape, (tuple, list))
-        if noise is not None:
-            img = noise
-        else:
-            img = torch.randn(*shape, device=device)
+
+        img = noise
+        shape = img.shape
         indices = list(range(self.num_timesteps))[::-1]
 
         if progress:
@@ -683,8 +677,7 @@ class GaussianDiffusion:
     def ddim_sample_loop(
         self,
         model,
-        shape,
-        noise=None,
+        noise,
         denoised_fn=None,
         cond_fn=None,
         model_kwargs=None,
@@ -700,7 +693,6 @@ class GaussianDiffusion:
         final = None
         for sample in self.ddim_sample_loop_progressive(
             model,
-            shape,
             noise=noise,
             denoised_fn=denoised_fn,
             cond_fn=cond_fn,
@@ -715,8 +707,7 @@ class GaussianDiffusion:
     def ddim_sample_loop_progressive(
         self,
         model,
-        shape,
-        noise=None,
+        noise,
         denoised_fn=None,
         cond_fn=None,
         model_kwargs=None,
@@ -732,11 +723,10 @@ class GaussianDiffusion:
         """
         if device is None:
             device = next(model.parameters()).device
-        assert isinstance(shape, (tuple, list))
-        if noise is not None:
-            img = noise
-        else:
-            img = torch.randn(*shape, device=device)
+
+        img = noise
+        shape = img.shape
+
         indices = list(range(self.num_timesteps))[::-1]
 
         if progress:
@@ -947,13 +937,13 @@ class GaussianDiffusion:
     def p_sample_loop(
         self,
         model,
-        shape,
+        noise,
         **kwargs,
     ):
         if self.posterior == "ddpm":
-            return self.ddpm_sample_loop(model, shape, **kwargs)
+            return self.ddpm_sample_loop(model, noise, **kwargs)
         elif self.posterior == "ddim":
-            return self.ddim_sample_loop(model, shape, **kwargs)
+            return self.ddim_sample_loop(model, noise, **kwargs)
         else:
             raise NotImplementedError("Unknown type of posterior - " + self.posterior)
 
