@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -18,7 +20,7 @@ class UnetDDPM(nn.Module):
         low_condition: bool,
         timestep_condition: bool,
         global_skip_connection: bool,
-        num_class_embeds: int | None = None,
+        num_class_embeds: Optional[int] = None,
     ):
         super().__init__()
         self.low_condition = low_condition

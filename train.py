@@ -17,7 +17,7 @@ log = RankedLogger(__name__, rank_zero_only=True)
 
 
 @hydra.main(version_base=None, config_path="config", config_name="default")
-def main(cfg: DictConfig):
+def main(cfg: DictConfig) -> None:
     if wandb.run:
         wandb.finish()
 

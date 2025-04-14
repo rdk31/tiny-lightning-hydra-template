@@ -1,3 +1,5 @@
+from typing import Callable, Optional
+
 import lightning as L
 from torch.utils.data import DataLoader, Dataset
 
@@ -6,9 +8,9 @@ class DataModule(L.LightningDataModule):
     def __init__(
         self,
         num_classes: int,
-        train_dataset: Dataset,
-        val_dataset: Dataset,
-        test_dataset: Dataset | None = None,
+        train_dataset: Callable[[], Dataset],
+        val_dataset: Callable[[], Dataset],
+        test_dataset: Optional[Callable[[], Dataset]] = None,
         batch_size: int = 32,
         num_workers: int = 8,
         pin_memory: bool = True,
@@ -26,7 +28,7 @@ class DataModule(L.LightningDataModule):
         self.num_workers = num_workers
         self.pin_memory = pin_memory
 
-    def setup(self, stage=None):
+    def setup(self, stage=None) -> None:
         if stage == "fit" or stage is None:
             self.train_dataset = self.train_dataset_factory()
             self.val_dataset = self.val_dataset_factory()

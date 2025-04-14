@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 
 from torch.utils.data import Dataset
 from torchvision.transforms.v2 import functional as F
@@ -23,10 +23,10 @@ class CorruptedDataset(Dataset):
         self.dataset = dataset
         self.corruption = corruption
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.dataset)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         outs = self.dataset[idx]
 
         outs["corrupted"] = self.corruption(outs["image"])

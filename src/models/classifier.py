@@ -1,3 +1,5 @@
+from typing import Any, Callable, Optional
+
 import lightning as L
 import torch
 import torch.nn as nn
@@ -9,8 +11,10 @@ class ClassifierLightningModule(L.LightningModule):
         self,
         num_classes: int,
         clf: torch.nn.Module,
-        optimizer: torch.optim.Optimizer,
-        lr_scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
+        optimizer: Callable[..., torch.optim.Optimizer],
+        lr_scheduler: Optional[
+            Callable[..., torch.optim.lr_scheduler.LRScheduler]
+        ] = None,
     ):
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -28,7 +32,7 @@ class ClassifierLightningModule(L.LightningModule):
             task="multiclass", num_classes=num_classes
         )
 
-    def training_step(self, batch, batch_idx: int):
+    def training_step(self, batch: dict[str, Any], batch_idx: int) -> torch.Tensor:
         x, y = batch["image"], batch["target"]
 
         logits = self.clf(x)
@@ -40,7 +44,9 @@ class ClassifierLightningModule(L.LightningModule):
 
         return loss
 
-    def validation_step(self, batch, batch_idx: int):
+    def validation_step(
+        self, batch: dict[str, Any], batch_idx: int
+    ) -> Optional[dict[str, Any]]:
         x, y = batch["image"], batch["target"]
 
         logits = self.clf(x)
@@ -68,7 +74,9 @@ class ClassifierLightningModule(L.LightningModule):
             }
         }
 
-    def test_step(self, batch, batch_idx: int):
+    def test_step(
+        self, batch: dict[str, Any], batch_idx: int
+    ) -> Optional[dict[str, Any]]:
         x, y = batch["image"], batch["target"]
 
         logits = self.clf(x)

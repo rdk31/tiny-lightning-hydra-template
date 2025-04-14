@@ -1,4 +1,4 @@
-from typing import Any, Mapping
+from typing import Any, Mapping, Union
 
 import lightning as L
 import torch
@@ -59,7 +59,9 @@ class WandbImageLogger(L.Callback):
 
         self.outputs = {}
 
-    def update(self, trainer: L.Trainer, outputs: Tensor | Mapping[str, Any] | None):
+    def update(
+        self, trainer: L.Trainer, outputs: Union[Tensor, Mapping[str, Any], None]
+    ):
         if isinstance(outputs, dict) and "wandb_image_logger" in outputs:
             for k, v in outputs["wandb_image_logger"].items():
                 if "samples" in v:
@@ -151,7 +153,7 @@ class WandbImageLogger(L.Callback):
         self,
         trainer: L.Trainer,
         pl_module: L.LightningModule,
-        outputs: Tensor | Mapping[str, Any] | None,
+        outputs: Union[Tensor, Mapping[str, Any], None],
         batch: Any,
         batch_idx: int,
         dataloader_idx: int = 0,
@@ -167,7 +169,7 @@ class WandbImageLogger(L.Callback):
         self,
         trainer: L.Trainer,
         pl_module: L.LightningModule,
-        outputs: Tensor | Mapping[str, Any] | None,
+        outputs: Union[Tensor, Mapping[str, Any], None],
         batch: Any,
         batch_idx: int,
         dataloader_idx: int = 0,

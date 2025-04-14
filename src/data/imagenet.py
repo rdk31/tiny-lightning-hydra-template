@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 
 from torchvision import datasets
 
@@ -13,7 +13,7 @@ class ImageNet(datasets.ImageNet):
         super().__init__(root, split, transform=transform)
         self.idx_to_class = {idx: name for name, idx in self.class_to_idx.items()}
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int) -> dict[str, Any]:
         sample, target = super().__getitem__(index)
 
         return {

@@ -1,3 +1,5 @@
+from typing import Any, Callable, Optional
+
 import lightning as L
 import torch
 from torchmetrics.image import PeakSignalNoiseRatio as PSNR
@@ -5,6 +7,7 @@ from torchmetrics.image import StructuralSimilarityIndexMeasure as SSIM
 from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity as LPIPS
 
 from src.nets.diffusion import DiffusionEngine
+from src.nets.vae import VAE
 
 
 class ImageEnhancementLightningModule(L.LightningModule):
@@ -12,9 +15,11 @@ class ImageEnhancementLightningModule(L.LightningModule):
         self,
         unet: torch.nn.Module,
         diffusion: DiffusionEngine,
-        optimizer: torch.optim.Optimizer,
-        vae: torch.nn.Module | None = None,
-        lr_scheduler: torch.optim.lr_scheduler.LRScheduler | None = None,
+        optimizer: Callable[..., torch.optim.Optimizer],
+        vae: Optional[VAE] = None,
+        lr_scheduler: Optional[
+            Callable[..., torch.optim.lr_scheduler.LRScheduler]
+        ] = None,
     ):
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -38,7 +43,7 @@ class ImageEnhancementLightningModule(L.LightningModule):
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
 
-    def forward(self, x_T):
+    def forward(self, x_T: torch.Tensor) -> torch.Tensor:
         x_T = 2 * x_T - 1
 
         z_T = self.vae.encode(x_T) if self.vae else x_T
@@ -47,7 +52,7 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return self.vae.decode(pred_z_0) if self.vae else pred_z_0.clamp(-1, 1)
 
-    def training_step(self, batch, batch_idx: int):
+    def training_step(self, batch: dict[str, Any], batch_idx: int) -> torch.Tensor:
         x_T, x_0 = batch["corrupted"], batch["image"]
 
         x_T = 2 * x_T - 1
@@ -66,7 +71,9 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return output["loss"]
 
-    def validation_step(self, batch, batch_idx: int):
+    def validation_step(
+        self, batch: dict[str, Any], batch_idx: int
+    ) -> Optional[dict[str, Any]]:
         x_T, x_0 = batch["corrupted"], batch["image"]
 
         norm_x_0 = 2 * x_0 - 1
@@ -87,7 +94,9 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return {"wandb_image_logger": {"val/samples": {"images": x_log}}}
 
-    def test_step(self, batch, batch_idx: int):
+    def test_step(
+        self, batch: dict[str, Any], batch_idx: int
+    ) -> Optional[dict[str, Any]]:
         x_T, x_0 = batch["corrupted"], batch["image"]
 
         norm_x_0 = 2 * x_0 - 1
