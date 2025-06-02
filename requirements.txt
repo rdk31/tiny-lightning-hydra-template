@@ -3,7 +3,7 @@ lightning==2.5.1
 pandas==2.2.3
 rootutils==1.0.7
 torch==2.6.0
-torchmetrics==1.7.1
+torchmetrics==1.7.2
 torchvision==0.21.0
 tqdm==4.67.1
 wandb==0.19.11
