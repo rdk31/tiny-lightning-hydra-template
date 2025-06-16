@@ -2137,7 +2137,7 @@ requires-dist = [
     { name = "scipy", specifier = "==1.13.1" },
     { name = "timm", specifier = "==1.0.15" },
     { name = "torch", specifier = "==2.6.0" },
-    { name = "torchmetrics", specifier = "==1.7.2" },
+    { name = "torchmetrics", specifier = "==1.7.3" },
     { name = "torchvision", specifier = "==0.21.0" },
     { name = "tqdm", specifier = "==4.67.1" },
     { name = "wandb", specifier = "==0.19.11" },
@@ -2212,7 +2212,7 @@ wheels = [
 
 [[package]]
 name = "torchmetrics"
-version = "1.7.2"
+version = "1.7.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lightning-utilities" },
@@ -2220,9 +2220,9 @@ dependencies = [
     { name = "packaging" },
     { name = "torch" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b7/ec/f5a4f94c77a1b4c0a37e5c5c8b666a33bc074130258a6b655346bec560c2/torchmetrics-1.7.2.tar.gz", hash = "sha256:ba401cd01aeaa268e809c0e4f42ef8f95669bf9b485e1d93d54dc765e012338a", size = 566185, upload-time = "2025-05-28T20:26:29.543Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/48/22/8b16c4ec34d93ee15024924cbbe84fbd235bb3e1df2cc8f48c865c1528e7/torchmetrics-1.7.3.tar.gz", hash = "sha256:08450a19cdb67ba1608aac0b213e5dc73033e11b60ad4719696ebcede591621e", size = 566545, upload-time = "2025-06-13T15:39:37.498Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/89/b5fd7eb99b27457d71d3b7d9eca0b884fa5992abca7672aab1177c5f22d8/torchmetrics-1.7.2-py3-none-any.whl", hash = "sha256:9cc3bff07a715fcb37fb04d2a1a5ae36267c36066c097578020056653a94f2a8", size = 962510, upload-time = "2025-05-28T20:26:27.385Z" },
+    { url = "https://files.pythonhosted.org/packages/6f/f2/bed7da46003c26ed44fc7fa3ecc98a84216f0d4758e5e6a3693754d490d9/torchmetrics-1.7.3-py3-none-any.whl", hash = "sha256:7b6fd43e92f0a1071c8bcb029637f252b0630699140a93ed8817ce7afe9db34e", size = 962639, upload-time = "2025-06-13T15:39:35.69Z" },
 ]
 
 [[package]]
