@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.9, <3.12"
 resolution-markers = [
     "python_full_version < '3.11' and sys_platform != 'linux'",
@@ -2137,7 +2137,7 @@ requires-dist = [
     { name = "scipy", specifier = "==1.13.1" },
     { name = "timm", specifier = "==1.0.15" },
     { name = "torch", specifier = "==2.6.0" },
-    { name = "torchmetrics", specifier = "==1.7.2" },
+    { name = "torchmetrics", specifier = "==1.8.1" },
     { name = "torchvision", specifier = "==0.21.0" },
     { name = "tqdm", specifier = "==4.67.1" },
     { name = "wandb", specifier = "==0.19.11" },
@@ -2212,7 +2212,7 @@ wheels = [
 
 [[package]]
 name = "torchmetrics"
-version = "1.7.2"
+version = "1.8.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lightning-utilities" },
@@ -2220,9 +2220,9 @@ dependencies = [
     { name = "packaging" },
     { name = "torch" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b7/ec/f5a4f94c77a1b4c0a37e5c5c8b666a33bc074130258a6b655346bec560c2/torchmetrics-1.7.2.tar.gz", hash = "sha256:ba401cd01aeaa268e809c0e4f42ef8f95669bf9b485e1d93d54dc765e012338a", size = 566185, upload-time = "2025-05-28T20:26:29.543Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/1f/2cd9eb8f3390c3ec4693ac0871913d4b468964b3833638e4091a70817e0a/torchmetrics-1.8.1.tar.gz", hash = "sha256:04ca021105871637c5d34d0a286b3ab665a1e3d2b395e561f14188a96e862fdb", size = 580373, upload-time = "2025-08-07T20:44:44.631Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/89/b5fd7eb99b27457d71d3b7d9eca0b884fa5992abca7672aab1177c5f22d8/torchmetrics-1.7.2-py3-none-any.whl", hash = "sha256:9cc3bff07a715fcb37fb04d2a1a5ae36267c36066c097578020056653a94f2a8", size = 962510, upload-time = "2025-05-28T20:26:27.385Z" },
+    { url = "https://files.pythonhosted.org/packages/8f/59/5c1c1cb08c494621901cf549a543f87143019fac1e6dd191eb4630bbc8fb/torchmetrics-1.8.1-py3-none-any.whl", hash = "sha256:2437501351e0da3d294c71210ce8139b9c762b5e20604f7a051a725443db8f4b", size = 982961, upload-time = "2025-08-07T20:44:42.608Z" },
 ]
 
 [[package]]
