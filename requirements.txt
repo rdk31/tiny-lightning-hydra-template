@@ -13,4 +13,4 @@ diffusers==0.33.1
 numpy==2.0.2
 matplotlib==3.9.4
 scipy==1.13.1
-pre-commit==4.2.0
+pre-commit==4.3.0
