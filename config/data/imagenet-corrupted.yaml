@@ -1,58 +1,44 @@
-_target_: src.data.datamodule.DataModule
+_target_: src.data.imagenet.ImageNetDataModule
 
 defaults:
-  - corruption@train_dataset.corruption: low_resolution
-  - corruption@val_dataset.corruption: low_resolution
+  - corruption: low_resolution
 
 num_classes: 1000
+root: ${core.data_dir}/imagenet
 
-train_dataset:
-  _target_: src.data.corruptions.CorruptedDataset
-  _partial_: True
+train_transform:
+  _target_: torchvision.transforms.v2.Compose
+  transforms:
+    - _target_: torchvision.transforms.v2.ToImage
+    - _target_: torchvision.transforms.v2.ToDtype
+      dtype:
+        _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
+        _args_:
+          - float32
+      scale: True
+    - _target_: torchvision.transforms.v2.Normalize
+      mean: [0.5, 0.5, 0.5]
+      std: [0.5, 0.5, 0.5]
+    - _target_: torchvision.transforms.v2.RandomCrop
+      size: 224
+      pad_if_needed: True
 
-  dataset:
-    _target_: src.data.imagenet.ImageNet
+val_transform:
+  _target_: torchvision.transforms.v2.Compose
+  transforms:
+    - _target_: torchvision.transforms.v2.ToImage
+    - _target_: torchvision.transforms.v2.ToDtype
+      dtype:
+        _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
+        _args_:
+          - float32
+      scale: True
+    - _target_: torchvision.transforms.v2.Normalize
+      mean: [0.5, 0.5, 0.5]
+      std: [0.5, 0.5, 0.5]
+    - _target_: torchvision.transforms.v2.CenterCrop
+      size: 224
 
-    root: ${core.data_dir}/imagenet
-    split: train
-
-    transform:
-      _target_: torchvision.transforms.v2.Compose
-      transforms:
-        - _target_: torchvision.transforms.v2.ToImage
-        - _target_: torchvision.transforms.v2.ToDtype
-          dtype:
-            _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
-            _args_:
-              - float32
-          scale: True
-        - _target_: torchvision.transforms.v2.RandomCrop
-          size: 224
-          pad_if_needed: True
-
-val_dataset:
-  _target_: src.data.corruptions.CorruptedDataset
-  _partial_: True
-
-  dataset:
-    _target_: src.data.imagenet.ImageNet
-
-    root: ${core.data_dir}/imagenet
-    split: val
-
-    transform:
-      _target_: torchvision.transforms.v2.Compose
-      transforms:
-        - _target_: torchvision.transforms.v2.ToImage
-        - _target_: torchvision.transforms.v2.ToDtype
-          dtype:
-            _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
-            _args_:
-              - float32
-          scale: True
-        - _target_: torchvision.transforms.v2.CenterCrop
-          size: 224
-
-batch_size: 12
+batch_size: 32
 num_workers: 8
 pin_memory: True

@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-
+from typing import Union
 
 import hydra
 import lightning as L
 import rootutils
 import wandb
-from lightning.pytorch.loggers import WandbLogger
+from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig, OmegaConf
 
 from src.utils import RankedLogger
@@ -23,33 +22,37 @@ def main(cfg: DictConfig) -> None:
 
     L.seed_everything(cfg.core.seed, workers=True)
 
-    log.info("Instantiating wandb")
-    wandb_logger: WandbLogger = hydra.utils.instantiate(cfg.wandb)
-
-    log.info("Logging hyperparameters!")
-    wandb_logger.log_hyperparams(
-        OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)  # type: ignore
-    )
-
     log.info(f"Instantiating datamodule <{cfg.data._target_}>")
     datamodule: L.LightningDataModule = hydra.utils.instantiate(cfg.data)
 
     log.info(f"Instantiating model <{cfg.model._target_}>")
     model: L.LightningModule = hydra.utils.instantiate(cfg.model)
 
-    log.info("Instantiating callbacks...")
-    callbacks: list[L.Callback] = [
-        hydra.utils.instantiate(c) for c in cfg.callbacks.values()
-    ]
+    callbacks: list[L.Callback] = []
+    if cfg.get("callbacks"):
+        log.info("Instantiating callbacks...")
+        callbacks.extend([hydra.utils.instantiate(c) for c in cfg.callbacks.values()])
+
+    logger: Union[Logger, bool] = False
+    if cfg.get("logger"):
+        log.info(f"Instantiating logger <{cfg.logger._target_}>")
+        logger = hydra.utils.instantiate(cfg.logger)
+
+        log.info("Logging hyperparameters!")
+        logger.log_hyperparams(  # type: ignore
+            OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)  # type: ignore
+        )
+    else:
+        log.info("Running without logger!")
 
     log.info(f"Instantiating trainer <{cfg.trainer._target_}>")
     trainer: L.Trainer = hydra.utils.instantiate(
-        cfg.trainer, logger=wandb_logger, callbacks=callbacks
+        cfg.trainer, logger=logger, callbacks=callbacks
     )
 
     if cfg.get("train"):
         log.info("Starting training!")
-        trainer.fit(model, datamodule, ckpt_path=cfg.get("ckpt_path"))
+        trainer.fit(model=model, datamodule=datamodule, ckpt_path=cfg.get("ckpt_path"))
 
     if cfg.get("test"):
         log.info("Starting testing!")

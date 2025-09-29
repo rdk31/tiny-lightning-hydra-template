@@ -8,7 +8,7 @@ defaults:
 
   - trainer: default
   - callbacks: default
-  - wandb: default
+  - logger: wandb
   - hydra: default
 
   - experiment: null

@@ -27,16 +27,13 @@ class ImageEnhancementLightningModule(L.LightningModule):
         self.unet = unet
         self.diffusion = diffusion
 
-        if vae:
-            self.vae = vae.eval()
-        else:
-            self.vae = None  # type: ignore
+        self.vae = vae.eval() if vae else None
 
-        self.val_psnr = PSNR()
+        self.val_psnr = PSNR((-1, 1))
         self.val_ssim = SSIM()
         self.val_lpips = LPIPS().eval()
 
-        self.test_psnr = PSNR()
+        self.test_psnr = PSNR((-1, 1))
         self.test_ssim = SSIM()
         self.test_lpips = LPIPS().eval()
 
@@ -52,7 +49,7 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return self.vae.decode(pred_z_0) if self.vae else pred_z_0.clamp(-1, 1)
 
-    def training_step(self, batch: dict[str, Any], batch_idx: int) -> torch.Tensor:
+    def training_step(self, batch: dict[str, Any]) -> torch.Tensor:
         x_T, x_0 = batch["corrupted"], batch["image"]
 
         x_T = 2 * x_T - 1
@@ -71,9 +68,7 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return output["loss"]
 
-    def validation_step(
-        self, batch: dict[str, Any], batch_idx: int
-    ) -> Optional[dict[str, Any]]:
+    def validation_step(self, batch: dict[str, Any]) -> Optional[dict[str, Any]]:
         x_T, x_0 = batch["corrupted"], batch["image"]
 
         norm_x_0 = 2 * x_0 - 1
@@ -94,9 +89,7 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return {"wandb_image_logger": {"val/samples": {"images": x_log}}}
 
-    def test_step(
-        self, batch: dict[str, Any], batch_idx: int
-    ) -> Optional[dict[str, Any]]:
+    def test_step(self, batch: dict[str, Any]) -> Optional[dict[str, Any]]:
         x_T, x_0 = batch["corrupted"], batch["image"]
 
         norm_x_0 = 2 * x_0 - 1

@@ -1,6 +1,5 @@
 _target_: lightning.pytorch.trainer.Trainer
 
-accelerator: gpu
 devices: 1
 
 max_epochs: 10

@@ -1,7 +1,12 @@
 # @package _global_
 
+defaults:
+  - override /logger: "no"
+
 callbacks: null
-wandb: null
+
+core:
+  tags: ["debug"]
 
 trainer:
   max_epochs: 1

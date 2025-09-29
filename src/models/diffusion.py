@@ -27,7 +27,7 @@ class DiffusionLightningModule(L.LightningModule):
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
 
-    def training_step(self, batch: dict[str, Any], batch_idx: int) -> torch.Tensor:
+    def training_step(self, batch: dict[str, Any]) -> torch.Tensor:
         x_0 = batch["image"]
 
         model_kwargs = {}
@@ -43,9 +43,7 @@ class DiffusionLightningModule(L.LightningModule):
 
         return loss
 
-    def validation_step(
-        self, batch: dict[str, Any], batch_idx: int
-    ) -> Optional[dict[str, Any]]:
+    def validation_step(self, batch: dict[str, Any]) -> Optional[dict[str, Any]]:
         x_0 = batch["image"]
 
         model_kwargs = {}
@@ -75,9 +73,7 @@ class DiffusionLightningModule(L.LightningModule):
             }
         }
 
-    def test_step(
-        self, batch: dict[str, Any], batch_idx: int
-    ) -> Optional[dict[str, Any]]:
+    def test_step(self, batch: dict[str, Any]) -> Optional[dict[str, Any]]:
         x_0 = batch["image"]
 
         model_kwargs = {}

@@ -158,12 +158,14 @@ class WandbImageLogger(L.Callback):
         batch_idx: int,
         dataloader_idx: int = 0,
     ) -> None:
-        self.update(trainer, outputs)
+        if isinstance(pl_module.logger, L.pytorch.loggers.wandb.WandbLogger):
+            self.update(trainer, outputs)
 
     def on_validation_epoch_end(
         self, trainer: L.Trainer, pl_module: L.LightningModule
     ) -> None:
-        self.log_outputs(trainer, pl_module)
+        if isinstance(pl_module.logger, L.pytorch.loggers.wandb.WandbLogger):
+            self.log_outputs(trainer, pl_module)
 
     def on_test_batch_end(
         self,
@@ -174,9 +176,11 @@ class WandbImageLogger(L.Callback):
         batch_idx: int,
         dataloader_idx: int = 0,
     ) -> None:
-        self.update(trainer, outputs)
+        if isinstance(pl_module.logger, L.pytorch.loggers.wandb.WandbLogger):
+            self.update(trainer, outputs)
 
     def on_test_epoch_end(
         self, trainer: L.Trainer, pl_module: L.LightningModule
     ) -> None:
-        self.log_outputs(trainer, pl_module)
+        if isinstance(pl_module.logger, L.pytorch.loggers.wandb.WandbLogger):
+            self.log_outputs(trainer, pl_module)

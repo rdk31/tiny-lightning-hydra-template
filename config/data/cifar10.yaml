@@ -1,48 +1,35 @@
-_target_: src.data.datamodule.DataModule
+_target_: src.data.cifar10.CIFAR10DataModule
 
 num_classes: 10
+root: ${core.data_dir}/cifar10
 
-train_dataset:
-  _target_: src.data.cifar10.CIFAR10
-  _partial_: True
+train_transform:
+  _target_: torchvision.transforms.v2.Compose
+  transforms:
+    - _target_: torchvision.transforms.v2.ToImage
+    - _target_: torchvision.transforms.v2.ToDtype
+      dtype:
+        _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
+        _args_:
+          - float32
+      scale: True
+    - _target_: torchvision.transforms.v2.Normalize
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
 
-  root: ${core.data_dir}/cifar10
-  train: True
-
-  transform:
-    _target_: torchvision.transforms.v2.Compose
-    transforms:
-      - _target_: torchvision.transforms.v2.ToImage
-      - _target_: torchvision.transforms.v2.ToDtype
-        dtype:
-          _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
-          _args_:
-            - float32
-        scale: True
-      - _target_: torchvision.transforms.v2.Normalize
-        mean: [0.485, 0.456, 0.406]
-        std: [0.229, 0.224, 0.225]
-
-val_dataset:
-  _target_: src.data.cifar10.CIFAR10
-  _partial_: True
-
-  root: ${core.data_dir}/cifar10
-  train: False
-
-  transform:
-    _target_: torchvision.transforms.v2.Compose
-    transforms:
-      - _target_: torchvision.transforms.v2.ToImage
-      - _target_: torchvision.transforms.v2.ToDtype
-        dtype:
-          _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
-          _args_:
-            - float32
-        scale: True
-      - _target_: torchvision.transforms.v2.Normalize
-        mean: [0.485, 0.456, 0.406]
-        std: [0.229, 0.224, 0.225]
+val_transform:
+  _target_: torchvision.transforms.v2.Compose
+  transforms:
+    - _target_: torchvision.transforms.v2.ToImage
+    - _target_: torchvision.transforms.v2.ToDtype
+      dtype:
+        _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
+        _args_:
+          - float32
+      scale: True
+    - _target_: torchvision.transforms.v2.Normalize
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
 
 batch_size: 128
 num_workers: 8

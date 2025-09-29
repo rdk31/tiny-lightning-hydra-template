@@ -21,5 +21,4 @@
 
 ## Running
 
-- inside venv
-- `./train.py experiment=???`
+- `python train.py experiment=???`
