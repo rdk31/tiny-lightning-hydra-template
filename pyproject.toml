@@ -15,7 +15,7 @@ dependencies = [
     "tqdm==4.67.1",
     "wandb==0.22.3",
     "ipykernel==6.31.0",
-    "timm==1.0.21",
+    "timm==1.0.24",
     "diffusers==0.36.0",
     "numpy==2.0.2",
     "matplotlib==3.9.4",
