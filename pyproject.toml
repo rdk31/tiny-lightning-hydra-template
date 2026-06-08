@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pre-commit>=4.6.0", "ruff>=0.15.15"]
+dev = ["pre-commit>=4.6.0", "ruff>=0.15.16"]
 
 [tool.ruff.lint]
 extend-select = ["I"]
