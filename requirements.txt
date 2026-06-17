@@ -1,4 +1,4 @@
-hydra-core>=1.3.2
+hydra-core>=1.3.3
 lightning>=2.6.5
 pandas>=2.3.3
 rootutils>=1.0.7
