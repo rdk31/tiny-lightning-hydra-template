@@ -2942,7 +2942,7 @@ requires-dist = [
     { name = "timm", specifier = ">=1.0.27" },
     { name = "torch", specifier = ">=2.12.1" },
     { name = "torchmetrics", specifier = ">=1.9.0" },
-    { name = "torchvision", specifier = ">=0.27.0" },
+    { name = "torchvision", specifier = ">=0.27.1" },
     { name = "tqdm", specifier = ">=4.68.2" },
     { name = "wandb", specifier = ">=0.27.2" },
 ]
