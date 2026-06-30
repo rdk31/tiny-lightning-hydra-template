@@ -31,3 +31,6 @@ extend-select = ["I"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src"]
+
+[tool.uv]
+exclude-newer = "7 days"
