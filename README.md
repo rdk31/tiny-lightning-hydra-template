@@ -2,23 +2,9 @@
 
 ## Setting up
 
-### uv
-
 - `uv sync`
-- `source .venv/bin/activate`
-
-### venv
-
-- `python -m venv .venv`
-- `source .venv/bin/activate`
-- `pip install -r requirements.txt`
-
-## Configuring
-
-- fill in `config/core/default.yaml`
-- create `config/default.yaml` based on prepared examples (`classifier.yaml`, `diffusion_image_enhancement.yaml`, `diffusion.yaml`)
-- run: `pre-commit install`
+- `uv run pre-commit install`
 
 ## Running
 
-- `python train.py experiment=???`
+- train: `uv run src/train.py`

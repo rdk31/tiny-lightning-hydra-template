@@ -7,4 +7,4 @@ max_epochs: 10
 # val_check_interval: 1_000
 # max_steps: 40_000
 
-default_root_dir: ${core.output_dir}
+default_root_dir: ${paths.output_dir}

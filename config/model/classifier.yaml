@@ -3,10 +3,10 @@ _target_: src.models.classifier.ClassifierLightningModule
 num_classes: ${data.num_classes}
 
 clf:
-  _target_: src.nets.timm.Timm
+  _target_: timm.create_model
 
   model_name: resnet18
-  pretrained: True
+  pretrained: true
   num_classes: ${data.num_classes}
 
 optimizer:

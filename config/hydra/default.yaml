@@ -1,6 +1,6 @@
 run:
-  dir: ${core.log_dir}/runs/${core.name}/${now:%Y-%m-%d}_${now:%H-%M-%S}
+  dir: ${paths.log_dir}/runs/${slurm_prefix:}${name}_${now:%Y-%m-%d}_${now:%H-%M-%S}
 
 sweep:
-  dir: ${core.log_dir}/multiruns/${multirun_name}/${now:%Y-%m-%d}_${now:%H-%M-%S}
-  subdir: ${hydra.job.num}-${core.name}
+  dir: ${paths.log_dir}/multiruns/${multirun_name}/${slurm_prefix:}${name}_${now:%Y-%m-%d}_${now:%H-%M-%S}
+  subdir: ${hydra.job.num}-${name}

@@ -1,7 +1,12 @@
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 import lightning as L
 import torch
+from lightning.pytorch.utilities.types import OptimizerLRScheduler
+from torch import Tensor
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import LRScheduler
 from torchmetrics.image import PeakSignalNoiseRatio as PSNR
 from torchmetrics.image import StructuralSimilarityIndexMeasure as SSIM
 from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity as LPIPS
@@ -15,11 +20,9 @@ class ImageEnhancementLightningModule(L.LightningModule):
         self,
         unet: torch.nn.Module,
         diffusion: DiffusionEngine,
-        optimizer: Callable[..., torch.optim.Optimizer],
-        vae: Optional[VAE] = None,
-        lr_scheduler: Optional[
-            Callable[..., torch.optim.lr_scheduler.LRScheduler]
-        ] = None,
+        optimizer: Callable[..., Optimizer],
+        vae: VAE | None = None,
+        lr_scheduler: Callable[..., LRScheduler] | None = None,
     ):
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -40,7 +43,7 @@ class ImageEnhancementLightningModule(L.LightningModule):
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
 
-    def forward(self, x_T: torch.Tensor) -> torch.Tensor:
+    def forward(self, x_T: Tensor) -> Tensor:
         x_T = 2 * x_T - 1
 
         z_T = self.vae.encode(x_T) if self.vae else x_T
@@ -49,7 +52,7 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return self.vae.decode(pred_z_0) if self.vae else pred_z_0.clamp(-1, 1)
 
-    def training_step(self, batch: dict[str, Any]) -> torch.Tensor:
+    def training_step(self, batch: dict[str, Any]) -> Tensor:
         x_T, x_0 = batch["corrupted"], batch["image"]
 
         x_T = 2 * x_T - 1
@@ -68,7 +71,7 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return output["loss"]
 
-    def validation_step(self, batch: dict[str, Any]) -> Optional[dict[str, Any]]:
+    def validation_step(self, batch: dict[str, Any]) -> dict[str, Any] | None:
         x_T, x_0 = batch["corrupted"], batch["image"]
 
         norm_x_0 = 2 * x_0 - 1
@@ -89,7 +92,7 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return {"wandb_image_logger": {"val/samples": {"images": x_log}}}
 
-    def test_step(self, batch: dict[str, Any]) -> Optional[dict[str, Any]]:
+    def test_step(self, batch: dict[str, Any]) -> dict[str, Any] | None:
         x_T, x_0 = batch["corrupted"], batch["image"]
 
         norm_x_0 = 2 * x_0 - 1
@@ -110,18 +113,22 @@ class ImageEnhancementLightningModule(L.LightningModule):
 
         return {"wandb_image_logger": {"test/samples": {"images": x_log}}}
 
-    def configure_optimizers(self):
-        optimizer = self.optimizer(params=self.unet.parameters())
-        out = {"optimizer": optimizer}
-        if self.lr_scheduler is not None:
-            lr_scheduler = self.lr_scheduler(
-                optimizer=optimizer,
-                T_max=self.trainer.estimated_stepping_batches,
-            )
-            out["lr_scheduler"] = {
+    def configure_optimizers(self) -> OptimizerLRScheduler:
+        optimizer = self.optimizer(params=self.parameters())
+
+        if self.lr_scheduler is None:
+            return optimizer
+
+        lr_scheduler = self.lr_scheduler(
+            optimizer=optimizer,
+            T_max=self.trainer.estimated_stepping_batches,
+        )
+
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
                 "scheduler": lr_scheduler,
                 "interval": "step",
                 "frequency": 1,
-            }
-
-        return out
+            },
+        }

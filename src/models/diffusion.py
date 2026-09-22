@@ -1,7 +1,12 @@
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 import lightning as L
 import torch
+from lightning.pytorch.utilities.types import OptimizerLRScheduler
+from torch import Tensor
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import LRScheduler
 
 from src.nets.diffusion import DiffusionEngine
 
@@ -12,10 +17,8 @@ class DiffusionLightningModule(L.LightningModule):
         class_conditioning: bool,
         unet: torch.nn.Module,
         diffusion: DiffusionEngine,
-        optimizer: Callable[..., torch.optim.Optimizer],
-        lr_scheduler: Optional[
-            Callable[..., torch.optim.lr_scheduler.LRScheduler]
-        ] = None,
+        optimizer: Callable[..., Optimizer],
+        lr_scheduler: Callable[..., LRScheduler] | None = None,
     ):
         super().__init__()
         self.save_hyperparameters(logger=False)
@@ -27,7 +30,7 @@ class DiffusionLightningModule(L.LightningModule):
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
 
-    def training_step(self, batch: dict[str, Any]) -> torch.Tensor:
+    def training_step(self, batch: dict[str, Any]) -> Tensor:
         x_0 = batch["image"]
 
         model_kwargs = {}
@@ -43,7 +46,7 @@ class DiffusionLightningModule(L.LightningModule):
 
         return loss
 
-    def validation_step(self, batch: dict[str, Any]) -> Optional[dict[str, Any]]:
+    def validation_step(self, batch: dict[str, Any]) -> dict[str, Any] | None:
         x_0 = batch["image"]
 
         model_kwargs = {}
@@ -73,7 +76,7 @@ class DiffusionLightningModule(L.LightningModule):
             }
         }
 
-    def test_step(self, batch: dict[str, Any]) -> Optional[dict[str, Any]]:
+    def test_step(self, batch: dict[str, Any]) -> dict[str, Any] | None:
         x_0 = batch["image"]
 
         model_kwargs = {}
@@ -103,18 +106,22 @@ class DiffusionLightningModule(L.LightningModule):
             }
         }
 
-    def configure_optimizers(self):
+    def configure_optimizers(self) -> OptimizerLRScheduler:
         optimizer = self.optimizer(params=self.parameters())
-        out = {"optimizer": optimizer}
-        if self.lr_scheduler is not None:
-            lr_scheduler = self.lr_scheduler(
-                optimizer=optimizer,
-                T_max=self.trainer.estimated_stepping_batches,
-            )
-            out["lr_scheduler"] = {
+
+        if self.lr_scheduler is None:
+            return optimizer
+
+        lr_scheduler = self.lr_scheduler(
+            optimizer=optimizer,
+            T_max=self.trainer.estimated_stepping_batches,
+        )
+
+        return {
+            "optimizer": optimizer,
+            "lr_scheduler": {
                 "scheduler": lr_scheduler,
                 "interval": "step",
                 "frequency": 1,
-            }
-
-        return out
+            },
+        }

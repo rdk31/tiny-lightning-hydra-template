@@ -1,22 +1,28 @@
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import lightning as L
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets
 
 
-class CIFAR10(datasets.CIFAR10):
+class CIFAR10(Dataset[dict[str, Any]]):
     def __init__(
         self,
         root: str,
         train: bool,
         transform: Callable,
-    ):
-        super().__init__(root, train, transform=transform, download=True)
+    ) -> None:
+        self.dataset = datasets.CIFAR10(root, train, transform=transform, download=True)
+
+        self.class_to_idx = self.dataset.class_to_idx
         self.idx_to_class = {idx: name for name, idx in self.class_to_idx.items()}
 
+    def __len__(self) -> int:
+        return len(self.dataset)
+
     def __getitem__(self, index: int) -> dict[str, Any]:
-        sample, target = super().__getitem__(index)
+        sample, target = self.dataset[index]
 
         return {
             "image": sample,

@@ -1,26 +1,10 @@
 defaults:
-  - _self_
+  - default
 
-  - core: default
+  - override data: imagenet-corrupted
+  - override model: diffusion_image_enhancement
 
-  - data: imagenet-corrupted
-  - model: diffusion_image_enhancement
-
-  - trainer: default
-  - callbacks: default
-  - logger: wandb
-  - hydra: default
-
-  - experiment: null
-
-  - optional local: default
-
-  - debug: null
-
-train: True
-test: True
-
-ckpt_path: null
+name: diffusion_image_enhancement
 
 trainer:
   limit_val_batches: 10
@@ -33,7 +17,9 @@ trainer:
 
 callbacks:
   model_checkpoint:
+    filename: "epoch={epoch:02d}-step={step:02d}-val_lpips={val/lpips:.4f}"
     monitor: "val/lpips"
+    mode: "min"
 
 model:
   unet:

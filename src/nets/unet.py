@@ -1,9 +1,7 @@
-from typing import Optional
-
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from diffusers.models.unets.unet_2d import UNet2DModel
+from torch import nn
 
 
 class UnetDDPM(nn.Module):
@@ -20,7 +18,7 @@ class UnetDDPM(nn.Module):
         low_condition: bool,
         timestep_condition: bool,
         global_skip_connection: bool,
-        num_class_embeds: Optional[int] = None,
+        num_class_embeds: int | None = None,
     ):
         super().__init__()
         self.low_condition = low_condition

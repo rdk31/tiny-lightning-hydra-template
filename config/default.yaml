@@ -1,15 +1,14 @@
 defaults:
   - _self_
 
-  - core: default
-
-  - data: imagenet
+  - data: cifar10
   - model: classifier
 
   - trainer: default
   - callbacks: default
   - logger: wandb
   - hydra: default
+  - paths: default
 
   - experiment: null
 
@@ -17,11 +16,12 @@ defaults:
 
   - debug: null
 
+name: classifier
+tags: []
+
 train: True
 test: True
 
 ckpt_path: null
 
-callbacks:
-  model_checkpoint:
-    monitor: "val/acc"
+seed: 42

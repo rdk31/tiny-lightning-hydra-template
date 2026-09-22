@@ -1,5 +1,3 @@
-from typing import Union
-
 import hydra
 import lightning as L
 import rootutils
@@ -7,20 +5,22 @@ import wandb
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig, OmegaConf
 
-from src.utils import RankedLogger
-
 rootutils.setup_root(__file__, pythonpath=True)
+
+from src.utils import RankedLogger, register_resolvers
+
+register_resolvers()
 
 
 log = RankedLogger(__name__, rank_zero_only=True)
 
 
-@hydra.main(version_base=None, config_path="config", config_name="default")
+@hydra.main(version_base=None, config_path="../config", config_name="default")
 def main(cfg: DictConfig) -> None:
     if wandb.run:
         wandb.finish()
 
-    L.seed_everything(cfg.core.seed, workers=True)
+    L.seed_everything(cfg.seed, workers=True)
 
     log.info(f"Instantiating datamodule <{cfg.data._target_}>")
     datamodule: L.LightningDataModule = hydra.utils.instantiate(cfg.data)
@@ -33,7 +33,7 @@ def main(cfg: DictConfig) -> None:
         log.info("Instantiating callbacks...")
         callbacks.extend([hydra.utils.instantiate(c) for c in cfg.callbacks.values()])
 
-    logger: Union[Logger, bool] = False
+    logger: Logger | bool = False
     if cfg.get("logger"):
         log.info(f"Instantiating logger <{cfg.logger._target_}>")
         logger = hydra.utils.instantiate(cfg.logger)
@@ -52,12 +52,22 @@ def main(cfg: DictConfig) -> None:
 
     if cfg.get("train"):
         log.info("Starting training!")
-        trainer.fit(model=model, datamodule=datamodule, ckpt_path=cfg.get("ckpt_path"))
+        trainer.fit(
+            model=model,
+            datamodule=datamodule,
+            ckpt_path=cfg.get("ckpt_path"),
+            weights_only=False,
+        )
 
     if cfg.get("test"):
         log.info("Starting testing!")
         ckpt_path = "best" if cfg.get("train") else cfg.get("ckpt_path", "best")
-        trainer.test(model=model, datamodule=datamodule, ckpt_path=ckpt_path)
+        trainer.test(
+            model=model,
+            datamodule=datamodule,
+            ckpt_path=ckpt_path,
+            weights_only=False,
+        )
 
 
 if __name__ == "__main__":

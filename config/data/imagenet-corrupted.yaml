@@ -1,10 +1,6 @@
-_target_: src.data.imagenet.ImageNetDataModule
-
 defaults:
+  - imagenet.yaml
   - corruption: low_resolution
-
-num_classes: 1000
-root: ${core.data_dir}/imagenet
 
 train_transform:
   _target_: torchvision.transforms.v2.Compose
@@ -12,9 +8,8 @@ train_transform:
     - _target_: torchvision.transforms.v2.ToImage
     - _target_: torchvision.transforms.v2.ToDtype
       dtype:
-        _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
-        _args_:
-          - float32
+        _target_: hydra.utils.get_object
+        path: torch.float32
       scale: True
     - _target_: torchvision.transforms.v2.Normalize
       mean: [0.5, 0.5, 0.5]
@@ -29,9 +24,8 @@ val_transform:
     - _target_: torchvision.transforms.v2.ToImage
     - _target_: torchvision.transforms.v2.ToDtype
       dtype:
-        _target_: torch.__dict__.get # workaround, see: https://github.com/facebookresearch/hydra/issues/2140
-        _args_:
-          - float32
+        _target_: hydra.utils.get_object
+        path: torch.float32
       scale: True
     - _target_: torchvision.transforms.v2.Normalize
       mean: [0.5, 0.5, 0.5]

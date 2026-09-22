@@ -2,8 +2,8 @@ from functools import partial
 
 import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 from tqdm import tqdm
 
 
@@ -71,7 +71,7 @@ class ISBDiffusion(nn.Module):
         """Sample q(x_t | x_0, x_1), i.e. eq 11"""
 
         assert x0.shape == x1.shape
-        batch, *xdim = x0.shape
+        _, *xdim = x0.shape
 
         mu_x0 = unsqueeze_xdim(self.mu_x0[step], xdim)
         mu_x1 = unsqueeze_xdim(self.mu_x1[step], xdim)

@@ -1,186 +1,211 @@
-from typing import Any, Mapping, Union
+from collections.abc import Mapping
+from dataclasses import dataclass, field
+from typing import Any, ClassVar
 
 import lightning as L
 import torch
-import wandb
+from lightning.pytorch.loggers import WandbLogger
 from torch import Tensor
+
+Stats = tuple[tuple[float, ...], tuple[float, ...]]
+
+
+@dataclass
+class _Buffer:
+    limit: int
+    images: list[Tensor] = field(default_factory=list)
+    captions: list[str | None] = field(default_factory=list)
 
 
 class WandbImageLogger(L.Callback):
-    """Log array of images to W&B.
+    STATS: ClassVar[Mapping[str, Stats]] = {
+        "standard": ((0.5,), (0.5,)),
+        "imagenet": (
+            (0.485, 0.456, 0.406),
+            (0.229, 0.224, 0.225),
+        ),
+    }
 
-    To use, return dictionary in validation_step or test_step named `wandb_image_logger` specifying wandb key, images (tensor of size B, C, H, W), optional captions (list[str] of size B),
-    optional denormalize_from (str or dict) to denormalize images before logging and optional num_samples (int) to override the specified number of samples to log.
+    def __init__(self, num_samples: int = 8) -> None:
+        super().__init__()
+        if num_samples <= 0:
+            raise ValueError("num_samples must be positive")
 
-    Args:
-        num_samples: (int) The total number of images to log across all devices.
-
-    Examples:
-        ### Log images with captions
-        ```python
-            ...
-            preds = torch.argmax(logits, dim=1)
-            captions = []
-            for pred, label in zip(preds, y):
-                captions.append(f"pred: {pred} true: {label}")
-
-            return {
-                "wandb_image_logger": {"val/samples":
-                    {
-                        "images": x,
-                        "captions": captions,
-                        "denormalize_from": "imagenet",
-                        "num_samples": 10,
-                    }
-                }
-            }
-        ```
-
-        ### Log multiple images without captions
-        ```python
-            ...
-            return {
-                "wandb_image_logger": {
-                    "test/clean": {"images": clean},
-                    "test/noisy": {"images": noisy},
-                }
-            }
-        ```
-    """
-
-    def __init__(self, num_samples: int):
         self.num_samples = num_samples
+        self.outputs: dict[str, _Buffer] = {}
 
-        self.standard_mean = torch.tensor([0.5, 0.5, 0.5])
-        self.standard_std = torch.tensor([0.5, 0.5, 0.5])
+    @staticmethod
+    def _logger(trainer: L.Trainer) -> WandbLogger | None:
+        return next(
+            (x for x in trainer.loggers if isinstance(x, WandbLogger)),
+            None,
+        )
 
-        self.imagenet_mean = torch.tensor([0.485, 0.456, 0.406])
-        self.imagenet_std = torch.tensor([0.229, 0.224, 0.225])
+    @classmethod
+    def _denormalize(
+        cls,
+        images: Tensor,
+        spec: str | Mapping[str, Any],
+    ) -> Tensor:
+        if isinstance(spec, str):
+            mean, std = cls.STATS[spec]
+        else:
+            mean, std = spec["mean"], spec["std"]
 
-        self.outputs = {}
+        channels = images.shape[1]
+        mean = torch.as_tensor(mean, dtype=images.dtype).flatten()
+        std = torch.as_tensor(std, dtype=images.dtype).flatten()
+
+        if mean.numel() not in (1, channels):
+            raise ValueError(f"Expected 1 or {channels} mean values")
+        if std.numel() not in (1, channels):
+            raise ValueError(f"Expected 1 or {channels} std values")
+
+        return images * std.view(1, -1, 1, 1) + mean.view(1, -1, 1, 1)
+
+    @staticmethod
+    def _to_uint8(
+        images: Tensor,
+        value_range: tuple[float, float] | None,
+    ) -> Tensor:
+        if images.dtype == torch.uint8 and value_range is None:
+            return images
+
+        low, high = value_range or (0.0, 1.0)
+
+        if high <= low:
+            raise ValueError(f"Invalid value_range: {value_range}")
+
+        images = torch.nan_to_num(
+            images.float(),
+            nan=low,
+            posinf=high,
+            neginf=low,
+        )
+
+        return (
+            ((images - low) / (high - low)).clamp(0, 1).mul(255).round().to(torch.uint8)
+        )
 
     def update(
-        self, trainer: L.Trainer, outputs: Union[Tensor, Mapping[str, Any], None]
-    ):
-        if isinstance(outputs, dict) and "wandb_image_logger" in outputs:
-            for k, v in outputs["wandb_image_logger"].items():
-                if "samples" in v:
-                    num_samples = v["samples"]
-                else:
-                    num_samples = self.num_samples
+        self,
+        trainer: L.Trainer,
+        outputs: Tensor | Mapping[str, Any] | None,
+    ) -> None:
+        if not isinstance(outputs, Mapping):
+            return
 
-                if k not in self.outputs:
-                    self.outputs[k] = {
-                        "num_samples": num_samples,
-                        "images": [],
-                        "captions": [],
-                    }
+        items = outputs.get("wandb_image_logger")
+        if not isinstance(items, Mapping):
+            return
 
-                if len(self.outputs[k]["images"]) < num_samples // trainer.world_size:
-                    images = v["images"].detach().cpu()
+        for key, cfg in items.items():
+            total = int(cfg.get("num_samples", self.num_samples))
+            if total <= 0:
+                raise ValueError("num_samples must be positive")
 
-                    if "captions" in v and v["captions"] is not None:
-                        captions = v["captions"]
-                    else:
-                        captions = [None] * images.shape[0]
+            local_limit = total // trainer.world_size
+            local_limit += int(trainer.global_rank < total % trainer.world_size)
 
-                    if "denormalize_from" in v:
-                        denormalize_from = v["denormalize_from"]
-                        if isinstance(denormalize_from, str):
-                            if denormalize_from == "standard":
-                                mean = self.standard_mean
-                                std = self.standard_std
-                            elif denormalize_from == "imagenet":
-                                mean = self.imagenet_mean
-                                std = self.imagenet_std
-                            else:
-                                raise ValueError(
-                                    f"denormalize_from must be one of 'standard', 'imagenet' or a dict with mean and std, got {denormalize_from}"
-                                )
-                        elif isinstance(denormalize_from, dict):
-                            mean = denormalize_from["mean"]
-                            std = denormalize_from["std"]
-                        else:
-                            raise ValueError(
-                                f"denormalize_from must be one of 'standard', 'imagenet' or a dict with mean and std, got {denormalize_from}"
-                            )
+            buffer = self.outputs.setdefault(key, _Buffer(total))
+            if buffer.limit != total:
+                raise ValueError(f"num_samples changed for image key {key!r}")
 
-                        images = images * std.view(1, 3, 1, 1) + mean.view(1, 3, 1, 1)
+            remaining = local_limit - len(buffer.images)
+            if remaining <= 0:
+                continue
 
-                    self.outputs[k]["images"].extend(
-                        images[
-                            : min(images.shape[0], num_samples // trainer.world_size)
-                        ]
-                    )
-                    self.outputs[k]["captions"].extend(captions)
+            images: Tensor = cfg["images"]
 
-    def log_outputs(self, trainer: L.Trainer, pl_module: L.LightningModule):
+            if images.ndim != 4 or images.shape[1] not in (1, 3, 4):
+                raise ValueError(f"Expected Bx(1|3|4)xHxW, got {tuple(images.shape)}")
+
+            images = images.detach().cpu()[:remaining]
+
+            if "denormalize_from" in cfg:
+                images = self._denormalize(
+                    images.float(),
+                    cfg["denormalize_from"],
+                )
+
+            images = self._to_uint8(
+                images,
+                cfg.get("value_range"),
+            )
+
+            captions = cfg.get("captions")
+
+            if captions is None:
+                captions = [None] * len(images)
+            else:
+                captions = list(captions[: len(images)])
+
+            if len(captions) != len(images):
+                raise ValueError("Number of captions must match images")
+
+            buffer.images.extend(images)
+            buffer.captions.extend(captions)
+
+    def log_outputs(self, trainer: L.Trainer) -> None:
+        logger = self._logger(trainer)
+        local, self.outputs = self.outputs, {}
+
+        if logger is None:
+            return
+
         if trainer.world_size > 1:
-            outputs = [None for _ in range(trainer.world_size)]
-            torch.distributed.all_gather_object(outputs, self.outputs)
+            gathered: list[dict[str, _Buffer] | None] = [None] * trainer.world_size
 
-            self.outputs.clear()
+            torch.distributed.all_gather_object(gathered, local)
 
             if not trainer.is_global_zero:
                 return
 
-            merged_dict = {}
-            for d in outputs:
-                for k, v in d.items():
-                    if k not in merged_dict:
-                        merged_dict[k] = {
-                            "num_samples": v["num_samples"],
-                            "images": [],
-                            "captions": [],
-                        }
+            merged: dict[str, _Buffer] = {}
 
-                    merged_dict[k]["images"].extend(v["images"])
-                    merged_dict[k]["captions"].extend(v["captions"])
+            for rank_outputs in gathered:
+                for key, value in (rank_outputs or {}).items():
+                    buffer = merged.setdefault(
+                        key,
+                        _Buffer(value.limit),
+                    )
+                    buffer.images.extend(value.images)
+                    buffer.captions.extend(value.captions)
         else:
-            merged_dict = self.outputs
+            merged = local
 
-        for k, v in merged_dict.items():
-            images_with_captions = list(zip(v["images"], v["captions"]))
-            wandb_images = [
-                wandb.Image(image.numpy().transpose(1, 2, 0), caption=caption)
-                for image, caption in images_with_captions[: v["num_samples"]]
-            ]
-            pl_module.logger.log_image(key=k, images=wandb_images)
+        for key, buffer in merged.items():
+            images = buffer.images[: buffer.limit]
 
-        self.outputs.clear()
+            if images:
+                logger.log_image(
+                    key=key,
+                    images=images,
+                    caption=buffer.captions[: len(images)],
+                    step=trainer.global_step,
+                )
 
     def on_validation_batch_end(
         self,
         trainer: L.Trainer,
         pl_module: L.LightningModule,
-        outputs: Union[Tensor, Mapping[str, Any], None],
+        outputs: Tensor | Mapping[str, Any] | None,
         batch: Any,
         batch_idx: int,
         dataloader_idx: int = 0,
     ) -> None:
-        if isinstance(pl_module.logger, L.pytorch.loggers.wandb.WandbLogger):
+        if not trainer.sanity_checking and self._logger(trainer) is not None:
             self.update(trainer, outputs)
 
     def on_validation_epoch_end(
-        self, trainer: L.Trainer, pl_module: L.LightningModule
-    ) -> None:
-        if isinstance(pl_module.logger, L.pytorch.loggers.wandb.WandbLogger):
-            self.log_outputs(trainer, pl_module)
-
-    def on_test_batch_end(
         self,
         trainer: L.Trainer,
         pl_module: L.LightningModule,
-        outputs: Union[Tensor, Mapping[str, Any], None],
-        batch: Any,
-        batch_idx: int,
-        dataloader_idx: int = 0,
     ) -> None:
-        if isinstance(pl_module.logger, L.pytorch.loggers.wandb.WandbLogger):
-            self.update(trainer, outputs)
+        if trainer.sanity_checking:
+            self.outputs.clear()
+        else:
+            self.log_outputs(trainer)
 
-    def on_test_epoch_end(
-        self, trainer: L.Trainer, pl_module: L.LightningModule
-    ) -> None:
-        if isinstance(pl_module.logger, L.pytorch.loggers.wandb.WandbLogger):
-            self.log_outputs(trainer, pl_module)
+    on_test_batch_end = on_validation_batch_end
+    on_test_epoch_end = on_validation_epoch_end

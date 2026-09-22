@@ -1,12 +1,12 @@
 _target_: lightning.pytorch.loggers.wandb.WandbLogger
 
-project: ${core.project_name}
-entity: ${core.entity}
-save_dir: ${core.output_dir}
+project: ???
+entity: ???
+save_dir: ${paths.output_dir}
 
 log_model: False
 mode: online
 
-name: ${core.name}
-tags: ${core.tags}
-group: ${core.group}
+name: ${name}
+tags: ${tags}
+group: null
