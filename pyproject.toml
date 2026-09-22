@@ -6,7 +6,6 @@ readme = "README.md"
 requires-python = ">=3.10,<3.15"
 dependencies = [
     "lightning>=2.6.5",
-    "pandas>=2.3.3",
     "torch>=2.12.1",
     "torchmetrics>=1.9.0",
     "torchvision>=0.28.0",
@@ -14,7 +13,6 @@ dependencies = [
     "timm>=1.0.28",
     "diffusers>=0.39.0",
     "numpy>=2.2.6",
-    "matplotlib>=3.10.9",
     "accelerate>=1.15.0",
 ]
 
