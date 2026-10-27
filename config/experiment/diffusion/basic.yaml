@@ -1,8 +1,0 @@
-# @package _global_
-
-core:
-  name: basic
-  group: diffusion
-
-trainer:
-  max_epochs: 200

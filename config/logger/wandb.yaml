@@ -1,12 +1,17 @@
-_target_: lightning.pytorch.loggers.wandb.WandbLogger
+# @package _global_
 
-project: ???
-entity: ???
-save_dir: ${paths.output_dir}
+logger:
+  _target_: lightning.pytorch.loggers.wandb.WandbLogger
+  project: ${project_name}
+  entity: ???
+  save_dir: ${paths.output_dir}
+  log_model: False
+  mode: online
+  name: ${name}
+  tags: ${tags}
+  group: ${group}
 
-log_model: False
-mode: online
-
-name: ${name}
-tags: ${tags}
-group: null
+callbacks:
+  wandb_image_logger:
+    _target_: src.utils.callbacks.wandb_image_logger.WandbImageLogger
+    num_samples: 8

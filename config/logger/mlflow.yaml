@@ -1,0 +1,17 @@
+# @package _global_
+
+logger:
+  _target_: lightning.pytorch.loggers.mlflow.MLFlowLogger
+
+  experiment_name: ${project_name}
+  run_name: ${name}
+  log_model: False
+
+  tags:
+    tags: ${tags}
+
+  tracking_uri: ???
+
+callbacks:
+  mlflow_system_logger:
+    _target_: src.utils.callbacks.mlflow_system_logger.MLFlowSystemMonitorCallback

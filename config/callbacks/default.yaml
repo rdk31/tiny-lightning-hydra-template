@@ -1,6 +1,0 @@
-defaults:
-  - model_checkpoint
-  - model_summary
-  - learning_rate_monitor
-  - rich_progress_bar
-  - wandb_image_logger

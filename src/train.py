@@ -31,7 +31,9 @@ def main(cfg: DictConfig) -> None:
     callbacks: list[L.Callback] = []
     if cfg.get("callbacks"):
         log.info("Instantiating callbacks...")
-        callbacks.extend([hydra.utils.instantiate(c) for c in cfg.callbacks.values()])
+        callbacks.extend(
+            hydra.utils.instantiate(c) for c in cfg.callbacks.values() if c is not None
+        )
 
     logger: Logger | bool = False
     if cfg.get("logger"):

@@ -1,0 +1,55 @@
+defaults:
+  - _self_
+  - logger: wandb
+  - experiment: null
+  - optional local: default
+
+project_name: tiny-lightning-hydra-template
+group: null
+tags: []
+
+train: True
+test: True
+ckpt_path: null
+seed: 42
+
+trainer:
+  _target_: lightning.pytorch.trainer.Trainer
+  devices: 1
+  max_epochs: 10
+  default_root_dir: ${paths.output_dir}
+
+callbacks:
+  model_checkpoint:
+    _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    dirpath: "${paths.output_dir}/checkpoints"
+    filename: "epoch={epoch:02d}-step={step:02d}-val_acc={val/acc:.4f}"
+    save_last: True
+    save_top_k: 1
+    monitor: "val/acc"
+    mode: "max"
+    auto_insert_metric_name: False
+
+  model_summary:
+    _target_: lightning.pytorch.callbacks.RichModelSummary
+    max_depth: 2
+
+  learning_rate_monitor:
+    _target_: lightning.pytorch.callbacks.LearningRateMonitor
+    logging_interval: step
+
+  rich_progress_bar:
+    _target_: lightning.pytorch.callbacks.RichProgressBar
+
+paths:
+  root_dir: ${oc.env:PROJECT_ROOT}
+  data_dir: ${paths.root_dir}/data
+  log_dir: ${paths.root_dir}/logs
+  output_dir: ${hydra:runtime.output_dir}
+
+hydra:
+  run:
+    dir: ${paths.log_dir}/runs/${slurm_prefix:}${name}_${now:%Y-%m-%d}_${now:%H-%M-%S}
+  sweep:
+    dir: ${paths.log_dir}/multiruns/${slurm_prefix:}${name}_${now:%Y-%m-%d}_${now:%H-%M-%S}
+    subdir: ${hydra.job.num}-${name}

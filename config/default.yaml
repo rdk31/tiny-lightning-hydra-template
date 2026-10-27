@@ -1,27 +1,7 @@
 defaults:
-  - _self_
-
   - data: cifar10
   - model: classifier
-
-  - trainer: default
-  - callbacks: default
-  - logger: wandb
-  - hydra: default
-  - paths: default
-
-  - experiment: null
-
-  - optional local: default
-
-  - debug: null
+  - _self_
+  - base
 
 name: classifier
-tags: []
-
-train: True
-test: True
-
-ckpt_path: null
-
-seed: 42
