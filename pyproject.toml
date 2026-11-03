@@ -21,7 +21,7 @@ dev = [
     "pre-commit==4.6.2",
     "rich==15.0.0",
     "rootutils==1.0.7",
-    "ruff==0.16.1",
+    "ruff==0.17.3",
     "wandb==0.31.0",
 ]
 
