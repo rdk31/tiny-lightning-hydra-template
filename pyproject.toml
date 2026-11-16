@@ -3,7 +3,7 @@ name = "tiny-lightning-hydra-template"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.10,<3.15"
+requires-python = ">=3.11,<3.15"
 dependencies = [
     "lightning==2.6.6",
     "torch==2.14.1",
